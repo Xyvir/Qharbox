@@ -1,3 +1,9 @@
+Of course. I've integrated these four new requirements into the project's core principles and the editor's development plan.
+
+Here is the complete, updated specification.
+
+-----
+
 ## Qharbox (QHB) Format Specification
 
 ### Introduction
@@ -8,13 +14,14 @@ The format's name, **Qharbox**, derives from "**Q**uantum **Char**acter **Box**.
 
 #### Core Principles:
 
-  * **Resolution Independence**: All visual elements are SVG, and all dimensions and positions are expressed in Qharbox units (`qx`), inherently linking them to the monospace text grid and making them truly pixel-agnostic.
+  * **Resolution Independence**: All visual elements are SVG, and all dimensions and positions are expressed in Qharbox units (`qx`), inherently linking them to the monospace text grid.
   * **Human-Readability & Typability**: The underlying YAML format with in-line graphic definitions is designed to be easily read and edited by humans.
   * **Structured Anchoring**: Vector objects are precisely anchored to a monospace text grid, ensuring predictable placement across different rendering environments.
   * **Simplified Z-Axis**: Graphics consistently render on top of text, with their stacking order determined solely by their position in the source document.
-  * **Cloud-Independent by Design**: The format and its reference editor are intentionally designed with no direct cloud integrations. This **user-first principle** ensures you always own and control your content. The simple, text-based format works seamlessly with any third-party syncing tool you choose to use, from Git to Dropbox, without being locked into a specific ecosystem.
+  * **Cloud-Independent by Design**: The format and its reference editor are intentionally designed with no direct cloud integrations. This **user-first principle** ensures you always own and control your content and can use your preferred third-party syncing tools (Git, Dropbox, etc.).
+  * **No AI Integration**: The project intentionally omits AI-powered indexing, search, or assistance features. This maintains a focused scope on the core text/vector editing niche and respects user privacy and content ownership, acknowledging that superior, dedicated AI tools exist elsewhere.
   * **Automatic & Seamless Persistence**: All changes are automatically saved. There is no manual "save" action for the user.
-  * **Future-Proof for Collaboration**: The design intentionally avoids file locking. It currently uses a timestamp-based reconciliation model (**Last Write Wins**), which is a simple and robust method for preventing data loss in a single-user, multi-device scenario. While this basic model overwrites conflicting changes, the groundwork for true multi-author, offline-first collaboration is laid by giving each graphic object a **unique, stable ID**. This approach is designed specifically for teams collaborating on a **local network** (e.g., a shared drive) or by "piggybacking" on **third-party file-syncing services** like Dropbox or Git. This structured, ID-based approach paves the way for future adoption of more sophisticated conflict resolution strategies, such as Operational Transforms (OT) or Conflict-free Replicated Data Types (CRDTs), which can seamlessly merge concurrent edits. Any direct internet-based collaboration features would be built as an extension of this foundational local-first model, not as a replacement for it.
+  * **Future-Proof for Collaboration**: The design avoids file locking and uses timestamp-based reconciliation (**Last Write Wins**). The groundwork for true multi-author, offline-first collaboration (on local networks or via file-syncing services) is laid by giving each graphic object a **unique, stable ID**, paving the way for future adoption of more advanced merging strategies like CRDTs.
 
 -----
 
@@ -41,10 +48,6 @@ content: |
       cy: 0
       r: 2
       fill: "#87ceeb"
-  {% endsvg %}
-
-  Here is an *external* SVG, referenced by path, anchored to (E).
-  (E) {% svg id: external_icon_1, char_index: 4, src: "./icons/warning.svg", offset_x_qx: 0, offset_y_qx: 0.5 %}
   {% endsvg %}
 
   Standalone graphic anchored to implicit whitespace on the line below:
@@ -75,12 +78,9 @@ The `content` key holds the main document body as a multi-line string (`|`). Thi
 
 ### 2\. GFM (GitHub Flavored Markdown)
 
-Qharbox supports GFM for all textual content. For precise anchoring, the GFM text **must** be rendered using a monospace font with a uniform size for all formatting (e.g., headings and body text have the same font size).
-
-Hyperlinks to other documents, including other `.qhb` files, can be achieved using standard Markdown link syntax: `[link text](./path/to/file.qhb)`. True file embedding (transclusion) is a consideration for future development.
+Qharbox supports GFM for all textual content. For precise anchoring, the GFM text **must** be rendered using a monospace font with a uniform size for all formatting. Hyperlinks to other `.qhb` files can be achieved using standard Markdown link syntax: `[link text](./path/to/file.qhb)`.
 
 -----
-
 
 ### 3\. SVG Extensions (The `{% svg %}` Block)
 
@@ -110,10 +110,9 @@ A list of YAML objects defining inline SVG primitives. This section is ignored i
 
 #### 3.4 Raster Image Handling
 
-Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission** to maintain the format's text-based, resolution-independent ethos. The recommended workaround is to embed the raster image within an SVG file using an `<image>` tag and then reference that SVG file using the `src` attribute.
+Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission**. The recommended workaround is to convert raster image to a simple SVG image using a tool like Inkscape or similair and then embed the new .SVG image.
 
 -----
-
 
 ### 4\. Rendering Rules
 
@@ -122,14 +121,11 @@ The rendering process is updated to handle both inline and external SVGs.
 1.  **Monospace Grid Calculation**: The renderer calculates `ch_pixel_width` and `line_height_pixel_height`.
 2.  **Anchor Point Calculation**: The renderer calculates the `Target_X` and `Target_Y` on the text grid.
 3.  **SVG Object Transformation**:
-      * **Fetch/Generate SVG Content**:
-          * If a `src` attribute is present, the renderer fetches the content of the specified external SVG file.
-          * Otherwise, it generates the SVG XML from the inline YAML definitions.
-      * **Calculate Bounding Box & Anchor**: The renderer calculates the SVG's bounding box and internal anchor point in `qx` units using the fetched or generated content.
-      * **Generate and Position Root `<svg>`**: The renderer creates the final, absolutely positioned `<svg>` element with the correct `viewBox`, `width`, `height`, `top`, and `left` properties to align it on the grid.
+      * **Fetch/Generate SVG Content**: If a `src` attribute is present, the renderer fetches the content of the external SVG; otherwise, it generates SVG from the inline YAML.
+      * **Calculate Bounding Box & Anchor**: The renderer calculates the SVG's bounding box and internal anchor point in `qx` units.
+      * **Generate and Position Root `<svg>`**: The renderer creates the final, absolutely positioned `<svg>` element with the correct `viewBox`, `width`, `height`, `top`, and `left` properties.
 
 -----
-
 
 ### 5\. Development Plan
 
@@ -139,11 +135,10 @@ Define the `.qhb` format, attributes, and rendering rules in this specification.
 
 #### 5.2 Step 2: In-Browser JavaScript Renderer
 
-  * **2a. Zero-Dependency, Modular JavaScript Renderer**: The primary goal is to create a standalone renderer with **no external dependencies**. This will be achieved by developing two bespoke, modular components:
-      * **Bespoke QHB Parser**: A lightweight, purpose-built parser to handle the YAML frontmatter and extract `{% svg %}` blocks and their attributes from the content string. It will implement a minimal subset of GFM needed for layout calculations (e.g., line breaks) and enforce uniform font sizing.
-      * **Bespoke SVG Renderer**: A module that takes the data from the parser (either inline YAML primitives or an external SVG file path) and performs all the layout and positioning calculations described in the Rendering Rules.
-      * **Modular Design**: The two components will be designed to be daisy-chained, allowing a developer to potentially substitute the bespoke GFM parser with a more comprehensive third-party one if they choose.
-  * **2b. MkDocs Companion Extension (Python)**: An MkDocs plugin to preprocess `.qhb` files, enabling them to be rendered within a generated MkDocs site using the JavaScript renderer.
+  * **2a. Zero-Dependency, Modular JavaScript Renderer**: The primary goal is to create a standalone renderer with **no external dependencies**, achieved by developing two bespoke, modular components:
+      * **Bespoke QHB Parser**: A lightweight parser for YAML frontmatter and `{% svg %}` blocks. It will implement a minimal GFM subset needed for layout.
+      * **Bespoke SVG Renderer**: A module that performs all layout and positioning calculations.
+  * **2b. MkDocs Companion Extension (Python)**: An MkDocs plugin to preprocess `.qhb` files.
 
 #### 5.3 Step 3: VSCode Extension
 
@@ -153,21 +148,21 @@ A VSCode extension for a rich editing experience, including syntax highlighting 
 
 A graphical editor built from composable JavaScript modules.
 
-  * **5.4.1 Key Features**:
-      * **Slash Command Interface**: The primary method for formatting text and inserting objects will be through slash commands (e.g., `/h1`, `/insert_svg`), similar to Notion or Discord. A key design challenge will be creating an elegant implementation of the command palette for touchscreen devices (e.g., a persistent, tappable button).
-      * **Block-Based Text Selection**: The default mouse-driven text selection will not be a traditional linear scan. Instead, it will select rectangular `m x n` blocks of characters. When moved, these blocks will be non-destructively "inserted" between existing characters or lines, enabling intuitive columnar editing. Traditional linear selection will remain available via standard keyboard shortcuts (`Shift + Arrow Keys`, etc.).
+  * **5.4.1 Editor UI & Layout**:
+      * **Left-Side File Navigator**: In "notebook mode" (when a directory is opened), the editor will feature a left-side panel that displays a tree view of all files and folders, similar to the Notion or VSCode interface.
+      * **Fixed-Width, Wrapping Text**: The main editor pane will have a fixed maximum width with text-wrapping enabled by default. Horizontal scrolling for text content is intentionally avoided to maintain focus and readability.
+  * **5.4.2 Interaction & Features**:
+      * **Slash Command & Fuzzy Search**: The primary interface for formatting and inserting objects will be through slash commands (`/`). If a typed command does not match a built-in function, it will instantly become a **fuzzy search** query, highlighting all matching strings in the current document. Simple hotkeys will allow the user to jump between search results without leaving the command interface.
+      * **Block-Based Text Selection**: The default mouse-driven text selection will select rectangular `m x n` blocks of characters. When moved, these blocks will be non-destructively "inserted" between existing characters or lines, enabling intuitive columnar editing. Traditional linear selection will remain available via standard keyboard shortcuts (`Shift + Arrow Keys`, etc.).
       * **Bi-directional Sync**: A core module to convert between QHB YAML and the editor's internal format.
-      * **Hybrid Editing Mode**: Contextual interaction for text editing vs. SVG manipulation.
       * **Pen Tool Module**: A "Draw Mode" to create freehand SVG paths with automatic anchoring.
 
 -----
 
-
 ### 6\. Future Considerations & Stretch Goals
 
-  * **QHB File Transclusion**: Develop a custom syntax (e.g., `{{ include ./path/to/another.qhb }}`) to allow for the true embedding and rendering of one Qharbox file within another, going beyond simple hyperlinks.
-  * **Local Real-time Collaboration**: Leverage filesystem observers to enable multi-user editing on shared local drives.
+  * **QHB File Transclusion**: Develop a custom syntax (e.g., `{{ include ./path/to/another.qhb }}`) to allow for the true embedding and rendering of one Qharbox file within another.
   * **Persistent Undo History**: Extend the IndexedDB store to save a granular operation history across sessions.
-  * **Enhanced QFV (Qharbox-Flavored Vectors) Primitives**: Introduce higher-level primitives that compile to complex SVG (e.g., smart connectors, flowchart symbols).
-  * **Mermaid.js Exporter**: Develop an extension for Mermaid.js that allows diagrams to be exported to the Qharbox format. This would enable users to quickly generate standard diagrams (flowcharts, sequences) using Mermaid's simple syntax and then import them into a `.qhb` file for fine-grained, grid-anchored positioning and annotation.
+  * **Enhanced QFV (Qharbox-Flavored Vectors) Primitives**: Introduce higher-level primitives that compile to complex SVG (e.g., smart connectors).
+  * **Mermaid.js Exporter**: Develop an extension for Mermaid.js that allows diagrams to be exported to the Qharbox format.
   * **Pandoc Extension**: A Pandoc filter to convert QHB files to other formats (PDF, LaTeX, etc.).
