@@ -18,8 +18,6 @@ The format's name, **Qharbox**, derives from "**Q**uantum **Char**acter **Box**.
 
 -----
 
-\<hr\>
-
 ### 1\. Core Format Structure (YAML)
 
 A Qharbox document is a YAML file, typically with a `.qhb` extension, structured into a YAML frontmatter and a main content block.
@@ -75,8 +73,6 @@ The `content` key holds the main document body as a multi-line string (`|`). Thi
 
 -----
 
-\<hr\>
-
 ### 2\. GFM (GitHub Flavored Markdown)
 
 Qharbox supports GFM for all textual content. For precise anchoring, the GFM text **must** be rendered using a monospace font with a uniform size for all formatting (e.g., headings and body text have the same font size).
@@ -85,7 +81,6 @@ Hyperlinks to other documents, including other `.qhb` files, can be achieved usi
 
 -----
 
-\<hr\>
 
 ### 3\. SVG Extensions (The `{% svg %}` Block)
 
@@ -119,7 +114,6 @@ Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission
 
 -----
 
-\<hr\>
 
 ### 4\. Rendering Rules
 
@@ -136,7 +130,6 @@ The rendering process is updated to handle both inline and external SVGs.
 
 -----
 
-\<hr\>
 
 ### 5\. Development Plan
 
@@ -169,7 +162,6 @@ A graphical editor built from composable JavaScript modules.
 
 -----
 
-\<hr\>
 
 ### 6\. Future Considerations & Stretch Goals
 
