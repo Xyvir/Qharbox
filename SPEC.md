@@ -240,10 +240,6 @@ A graphical editor built from composable JavaScript modules.
         * **Positional Lock** (`Ctrl+Shift+L`): This advanced lock fixes the object's position relative to the page canvas itself, making it immune to text reflow. This is useful for elements like logos or fixed background diagrams. When applied, the object's position is calculated once and then remains static until unlocked.
 You are absolutely right. My apologies, in the process of making the other edits, I mistakenly removed the section about the browser extension. That's a key part of the deployment plan.
 
-I have located the original text. Here is the section describing the browser extension packaging for you to re-insert.
-
-***
-
 ##### Browser Extension Packaging (Deployment Goal)
 
 * **Goal**: Provide an easy-to-install, self-contained application that leverages the user's existing browser environment for local-first use.
