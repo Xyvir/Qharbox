@@ -147,6 +147,7 @@ Create a modular, in-browser renderer.
   * **QHB Parser**: A component to read a `.qhb` string and separate it into frontmatter, a Markdown string, and a list of SVG objects.
   * **Markdown Renderer**: A component to convert the Markdown string into basic HTML.
   * **SVG Renderer**: The core component that implements the **Rendering Specification** to calculate positions and inject SVG elements into the DOM.
+  * **Remote File Ingestion**: The renderer will support loading .qhb files from a remote URL. This will be handled via a URL query string (e.g., .../?source=ENCODED_URL). On page load, the application will check for this parameter, decode the URL, fetch the file's content using the fetch() API, and then pass the raw content to the QHB Parser.
   * **Companion Extension (Python)**: An MkDocs plugin that uses the JavaScript renderer to display `.qhb` files within a generated MkDocs site.
 
 #### Step 3: VSCode Extension
