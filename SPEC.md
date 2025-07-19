@@ -162,10 +162,64 @@ Define the `.qhb` format, attributes, and rendering rules in this specification.
 
 #### 5.2 Step 2: In-Browser JavaScript Renderer
 
-  * **2a. Zero-Dependency, Modular JavaScript Renderer**: The primary goal is to create a standalone renderer with **no external dependencies**, achieved by developing two bespoke, modular components:
-      * **Bespoke QHB Parser**: A lightweight parser for YAML frontmatter and `{% svg %}` blocks. It will implement a minimal GFM subset needed for layout.
-      * **Bespoke SVG Renderer**: A module that performs all layout and positioning calculations.
-  * **2b. MkDocs Companion Extension (Python)**: An MkDocs plugin to preprocess `.qhb` files.
+### A Clearer Three-Part Structure
+
+1.  **The QHB Parser (Orchestrator)**
+
+      * **Input**: The raw text content of a `.qhb` file.
+      * **Job**: This is the top-level component. It doesn't render anything. Its only job is to read the raw string and separate it into logical pieces:
+          * The YAML frontmatter data.
+          * The raw Markdown string from the `content:` block.
+          * A list of all SVG objects, including their attributes (`id`, `char_index`, `src`, etc.) and any inline YAML definitions.
+      * **Output**: It passes the Markdown string to the Markdown Renderer and the list of SVG objects to the SVG Renderer.
+
+2.  **The Markdown Renderer**
+
+      * **Input**: The raw Markdown string.
+      * **Job**: This component is responsible for turning the Markdown text into basic HTML elements (like `<p>`, `<h1>`, `<code>`, etc.). Its primary purpose is to get the text onto the page so that the SVG Renderer can then measure character positions.
+
+3.  **The SVG Renderer**
+
+      * **Input**: The list of SVG objects provided by the Parser.
+      * **Job**: This is the most complex component. It performs all the calculations described in **Section 4: Rendering Rules**. For each SVG object, it finds its anchor character in the rendered HTML, calculates the precise pixel position, and injects the final, correctly-sized and positioned `<svg>` element into the DOM.
+
+-----
+
+## Renderer Data Flow
+
+```
+Raw .qhb file string
+       │
+       ▼
+┌────────────────────┐
+│ 1. QHB Parser      │
+└────────────────────┘
+       ├───────────────┬──────────────┐
+       │               │              │
+       ▼               ▼              ▼
+┌──────────────┐  ┌────────────┐   ┌────────────┐
+│ Frontmatter  │  │ Markdown   │   │ SVG Object │
+│ Data         │  │ String     │   │ List       │
+└──────────────┘  └────────────┘   └────────────┘
+       │ (optional)    │              │
+       │               │              │
+       └· · · · · ·· ·>│              │
+                       ▼              ▼
+               ┌──────────────┐  ┌────────────┐
+               │ 2. Markdown  │  │ 3. SVG     │
+               │    Renderer  │  │    Renderer│
+               └──────────────┘  └────────────┘
+                       │              │
+                       ▼              ▼
+               ┌─────────────────────────────┐
+               │ Final Rendered Page         │
+               │ (HTML from Markdown +       │
+               │  SVG elements overlaid)     │
+               └─────────────────────────────┘
+```
+
+
+* **2b. MkDocs Companion Extension (Python)**: An MkDocs plugin to preprocess `.qhb` files, enabling them to be rendered within a generated MkDocs site using the JavaScript renderer.
 
 #### 5.3 Step 3: VSCode Extension
 
