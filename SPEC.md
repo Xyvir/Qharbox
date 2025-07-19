@@ -110,20 +110,52 @@ A list of YAML objects defining inline SVG primitives. This section is ignored i
 
 #### 3.4 Raster Image Handling
 
-Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission**. The recommended workaround is to convert raster image to a simple SVG image using a tool like Inkscape or similair and then embed the new .SVG image.
+Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission** to maintain the format's text-based, resolution-independent ethos. The recommended workaround is to convert raster image to a simple SVG image using a tool like Inkscape or similair, and then embed the new SVG image.
 
 -----
 
-### 4\. Rendering Rules
+### 4. Rendering Rules
 
-The rendering process is updated to handle both inline and external SVGs.
+The Qharbox renderer must adhere to these rules for consistent visual output.
 
-1.  **Monospace Grid Calculation**: The renderer calculates `ch_pixel_width` and `line_height_pixel_height`.
-2.  **Anchor Point Calculation**: The renderer calculates the `Target_X` and `Target_Y` on the text grid.
-3.  **SVG Object Transformation**:
-      * **Fetch/Generate SVG Content**: If a `src` attribute is present, the renderer fetches the content of the external SVG; otherwise, it generates SVG from the inline YAML.
-      * **Calculate Bounding Box & Anchor**: The renderer calculates the SVG's bounding box and internal anchor point in `qx` units.
-      * **Generate and Position Root `<svg>`**: The renderer creates the final, absolutely positioned `<svg>` element with the correct `viewBox`, `width`, `height`, `top`, and `left` properties.
+#### 4.1 Monospace Grid Calculation
+The renderer must first dynamically calculate the precise pixel dimensions of:
+* **`ch_pixel_width`**: The width of a single character in the rendered monospace font.
+* **`line_height_pixel_height`**: The height of a single line of text in the rendered monospace font.
+
+#### 4.2 Anchor Point Calculation (Text Grid Side)
+For each `{% svg %}` block, the renderer must find the target pixel coordinate on the text grid.
+
+1.  **Identify Anchor Character's Center (Pixel X, Y)**:
+    * Get the `getBoundingClientRect()` of the HTML element for the line of text preceding the SVG block.
+    * `Character_Block_Start_X = anchorLineRect.left + (char_index * ch_pixel_width)`
+    * `Character_Block_Center_X = Character_Block_Start_X + (ch_pixel_width / 2)`
+    * `Character_Block_Center_Y = anchorLineRect.top + (line_height_pixel_height / 2)`
+2.  **Calculate Final Text Grid Anchor Point (Target_X, Target_Y)**:
+    * `Target_X = Character_Block_Center_X + (offset_x_qx * ch_pixel_width)`
+    * `Target_Y = Character_Block_Center_Y + (offset_y_qx * line_height_pixel_height)`
+
+#### 4.3 SVG Object Transformation (Graphic Side)
+The renderer must transform the SVG content to align with the text grid anchor.
+
+1.  **Fetch or Generate SVG Content**: If a `src` attribute is present, fetch the external SVG file. Otherwise, generate the SVG XML from the inline YAML definitions.
+2.  **Calculate SVG Bounding Box**: The renderer must determine the overall bounding box of the SVG content (`min_qx_x`, `min_qx_y`, `width_qx`, `height_qx`) in `qx` units. This will likely involve temporarily rendering the content in a detached element and using the `getBBox()` method.
+3.  **Calculate SVG Internal Anchor Point**: Find the anchor's coordinates (`SVG_Internal_Anchor_X`, `SVG_Internal_Anchor_Y`) within the SVG's own `qx` coordinate system.
+    * `SVG_Internal_Anchor_X = (min_qx_x + width_qx / 2) + (svg_anchor_x_qx * width_qx)`
+    * `SVG_Internal_Anchor_Y = (min_qx_y + height_qx / 2) + (svg_anchor_y_qx * height_qx)`
+4.  **Generate and Position Root `<svg>` Element**:
+    * Create a parent `<svg>` element.
+    * Set its `viewBox` attribute to match the calculated bounding box: `viewBox="min_qx_x min_qx_y width_qx height_qx"`.
+    * Set its pixel `width` and `height` based on the grid dimensions:
+        * `width = width_qx * ch_pixel_width`
+        * `height = height_qx * line_height_pixel_height`
+    * Position it absolutely by calculating the `top` and `left` CSS properties required to place the `SVG_Internal_Anchor_Point` precisely at the `Target` coordinates:
+        * `Final_SVG_Left = Target_X - (SVG_Internal_Anchor_X * ch_pixel_width)`
+        * `Final_SVG_Top = Target_Y - (SVG_Internal_Anchor_Y * line_height_pixel_height)`
+
+#### 4.4 Z-Indexing & Stacking Order
+* All SVG elements render on top of the GFM text (`z-index` of SVG layer is higher).
+* The stacking order of overlapping SVG objects is determined by their sequence in the source document; later SVGs appear on top of earlier ones.
 
 -----
 
