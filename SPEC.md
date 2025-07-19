@@ -171,6 +171,7 @@ Build a graphical editor from composable JavaScript modules.
       * **Block-Based Text Selection**: Using a secondary-click (or two-finger) drag, users can select rectangular `m x n` blocks of characters for intuitive columnar editing.
       * **Dual Locking System**: Provide an **Editing Lock** (`Ctrl+L`) to prevent accidental modification while allowing reflow, and a **Positional Lock** (`Ctrl+Shift+L`) to fix an object's position relative to the page.
       * **Automatic & Seamless Persistence**: All changes are automatically saved to local storage (e.g., IndexedDB), with no manual "save" action required from the user.
+      * **Toggle Snapping Modes**: Snap to center of qx, snap to edges of qx, no snapping (Freeform)
 
 #### Step 5: Browser Extension Packaging (Deployment)
 
