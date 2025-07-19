@@ -1,9 +1,3 @@
-Of course. I've integrated these four new requirements into the project's core principles and the editor's development plan.
-
-Here is the complete, updated specification.
-
------
-
 ## Qharbox (QHB) Format Specification
 
 ### Introduction
