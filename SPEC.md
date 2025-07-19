@@ -150,6 +150,7 @@ The renderer must transform the SVG content to align with the text grid anchor.
 #### 4.4 Z-Indexing & Stacking Order
 * All SVG elements render on top of the GFM text (`z-index` of SVG layer is higher).
 * The stacking order of overlapping SVG objects is determined by their sequence in the source document; later SVGs appear on top of earlier ones.
+* In the editor, generally the last modified object will be automatically moved to the top of the stack.
 
 -----
 
@@ -182,6 +183,9 @@ A graphical editor built from composable JavaScript modules.
       * **Block-Based Text Selection**: The default mouse-driven text selection will select rectangular `m x n` blocks of characters. When moved, these blocks will be non-destructively "inserted" between existing characters or lines, enabling intuitive columnar editing. Traditional linear selection will remain available via standard keyboard shortcuts (`Shift + Arrow Keys`, etc.).
       * **Bi-directional Sync**: A core module to convert between QHB YAML and the editor's internal format.
       * **Pen Tool Module**: A "Draw Mode" to create freehand SVG paths with automatic anchoring.
+      * **Dual Locking System**: To provide granular control, the editor will support two distinct types of object locks, likely toggled via a context menu or hotkeys:
+        * **Editing Lock** (`Ctrl+L`): This primary lock prevents accidental dragging, resizing, or editing of an object's properties. The object remains "glued" to its character anchor and continues to reflow perfectly as the surrounding text is edited.
+        * **Positional Lock** (`Ctrl+Shift+L`): This advanced lock fixes the object's position relative to the page canvas itself, making it immune to text reflow. This is useful for elements like logos or fixed background diagrams. When applied, the object's position is calculated once and then remains static until unlocked.
 
 -----
 
