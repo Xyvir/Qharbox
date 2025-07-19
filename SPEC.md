@@ -160,9 +160,7 @@ The renderer must transform the SVG content to align with the text grid anchor.
 
 Define the `.qhb` format, attributes, and rendering rules in this specification.
 
-#### 5.2 Step 2: In-Browser JavaScript Renderer
-
-### A Clearer Three-Part Structure
+#### 5.2 Step 2: In-Browser Modular JavaScript Renderer
 
 1.  **The QHB Parser (Orchestrator)**
 
@@ -240,6 +238,20 @@ A graphical editor built from composable JavaScript modules.
       * **Dual Locking System**: To provide granular control, the editor will support two distinct types of object locks, likely toggled via a context menu or hotkeys:
         * **Editing Lock** (`Ctrl+L`): This primary lock prevents accidental dragging, resizing, or editing of an object's properties. The object remains "glued" to its character anchor and continues to reflow perfectly as the surrounding text is edited.
         * **Positional Lock** (`Ctrl+Shift+L`): This advanced lock fixes the object's position relative to the page canvas itself, making it immune to text reflow. This is useful for elements like logos or fixed background diagrams. When applied, the object's position is calculated once and then remains static until unlocked.
+You are absolutely right. My apologies, in the process of making the other edits, I mistakenly removed the section about the browser extension. That's a key part of the deployment plan.
+
+I have located the original text. Here is the section describing the browser extension packaging for you to re-insert.
+
+***
+
+##### Browser Extension Packaging (Deployment Goal)
+
+* **Goal**: Provide an easy-to-install, self-contained application that leverages the user's existing browser environment for local-first use.
+* **Mechanism**: After developing the modular JavaScript components and compiling them via a bundler (e.g., Webpack, Rollup), the entire application (HTML, CSS, JS) will be packaged as a **Web Browser Extension** (e.g., Manifest V3 for Chrome/Firefox).
+* **Deployment**:
+    * The extension will typically include a "popup" or "action" (when you click the extension icon) that opens a dedicated, self-contained full-page tab (`chrome.tabs.create` to an `index.html` file within the extension). This full-page tab *is* the Qharbox editor.
+    * This packaging allows for full offline functionality and access to powerful browser APIs (like File System Access and IndexedDB) with minimal overhead, directly utilizing the user's installed browser. It provides a "desktop-like" application experience without the need for a heavy runtime like Electron.
+    * Static live versions of the editor can still be hosted separately on web servers (e.g., GitHub Pages) for online access, serving the same core JavaScript components.
 
 -----
 
