@@ -20,4 +20,4 @@ This project is currently in the detailed specification phase. Tooling and refer
 
 For a complete technical breakdown of the format, rendering rules, and development plan, please see the full design document:
 
-[**View the Full Specification (`SPECIFICATION.md`)**](https://www.google.com/search?q=./docs/SPECIFICATION.md)
+[**View the Full Specification (`SPEC.md`)**][(https://github.com/Xyvir/Qharbox/blob/main/SPEC.md)]
