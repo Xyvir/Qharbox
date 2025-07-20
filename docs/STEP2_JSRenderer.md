@@ -1,4 +1,4 @@
-### ## Part 1: Core Data Structures & State
+## Part 1: Core Data Structures & State
 
 This is the foundation of your application, defining how data and its history are stored in memory.
 
@@ -25,7 +25,7 @@ This is the foundation of your application, defining how data and its history ar
     * **`.content`**: An array of `StatefulComponent` instances.
 
 ***
-### ## Part 2: The Ingestor (Parser)
+## Part 2: The Ingestor (Parser)
 
 This module's job is to read a `.qhb` file and create the in-memory `QharboxDocument`.
 
@@ -36,7 +36,7 @@ This module's job is to read a `.qhb` file and create the in-memory `QharboxDocu
         * It will wrap each of these raw data objects in a `StatefulComponent` before adding it to the `QharboxDocument.content` array.
 
 ***
-### ## Part 3: Global History Management
+## Part 3: Global History Management
 
 This is the application-level logic that powers the main undo/redo feature.
 
@@ -60,7 +60,7 @@ This is the application-level logic that powers the main undo/redo feature.
         * Re-links it to the undo chain and updates `historyHead`.
 
 ***
-### ## Part 4: Renderers & Serializer
+## Part 4: Renderers & Serializer
 
 These modules handle drawing the document to the screen and writing it back to a file.
 
