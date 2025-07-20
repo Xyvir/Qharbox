@@ -186,5 +186,6 @@ Package the entire editor application (HTML, CSS, JS) as a self-contained Web Br
   * **QHB File Transclusion**: Develop a syntax (e.g., `{{ include ./path/to/another.qhb }}`) to embed one QHB file within another.
   * **Advanced Collaboration**: Implement a CRDT-based model for true real-time, multi-author collaboration.
   * **Persistent Undo History**: Extend the editor's data store to save a granular operation history across sessions.
+  * ** Katex Support **
   * **Pandoc Extension**: Create a Pandoc filter to convert QHB files to other formats like PDF and LaTeX.
   * **Mermaid.js Exporter**: Develop an extension for Mermaid.js that allows diagrams to be exported directly to the Qharbox format.
