@@ -10,11 +10,11 @@ Qharbox is a plain-text document format for creating rich technical documents wh
   * ✍️ **Human-Readable & Git-Friendly:** The entire document is plain-text YAML, making it perfect for version control.
   * 🎯 **Precise Grid Anchoring:** Vector graphics are positioned relative to individual characters, not pixels, for perfectly aligned, resolution-independent diagrams.
   * 🏡 **Local-First & Cloud-Independent:** Your files stay on your machine. Qharbox is built to work with your favorite sync tools (Git, Dropbox, etc.), not replace them.
-  * 🔗 **Flexible SVG Support:** Define graphics directly inside your document using simple YAML, or reference external `.svg` files.
+  * 🔗 **Flexible SVG Support:** Define graphics or instances directly inside your document using simple YAML-flavored SVG, or even reference external `.svg` files.
 
 ## Project Status
 
-This project is currently in the detailed specification phase. Tooling and reference implementations are under development.
+This project is currently in the detailed specification phase. Qharbox file format tooling and reference implementations are under development.
 
 ## Full Specification
 
