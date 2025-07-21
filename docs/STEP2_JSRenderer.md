@@ -1,75 +1,101 @@
-## Part 1: Core Data Structures & State
+### \#\# Recommended File Structure
 
-This is the foundation of your application, defining how data and its history are stored in memory.
+This modular structure will keep your project organized and scalable.
 
-* [ ] **`StatefulComponent` Class (The "Monad"):**
-    * This is the wrapper for every piece of content.
-    * **`.value`**: The raw `GfmBlock` or `SvgObject`.
-    * **`.history`**: An array of `HistoryEntry` objects, representing the component's private, internal history. This is where inactive branches will be archived.
-    * **`.isDirty`**: A boolean flag for efficient re-rendering in the editor.
+```
+/qharbox-renderer
+├── /src
+│   ├── /core                # Core data models and state wrappers
+│   │   ├── DocumentSnapshot.js
+│   │   ├── QharboxDocument.js
+│   │   ├── StatefulComponent.js
+│   │   └── ...                # (GfmBlock, SvgObject, etc.)
+│   │
+│   ├── /editor              # Functions for document manipulation & history
+│   │   ├── mutations.js         # (splitBlock, mergeBlocks)
+│   │   └── history.js           # (handleUndo, handleRedo, handleNewChange)
+│   │
+│   ├── /io                  # Input/Output - Parsing and Saving
+│   │   ├── Ingestor.js
+│   │   └── Serializer.js
+│   │
+│   ├── /rendering           # Visual output logic
+│   │   ├── GfmRenderer.js
+│   │   └── SvgRenderer.js
+│   │
+│   └── app.js                 # The Orchestrator - Main application logic
+│
+└── index.html               # Test harness to run the application
+```
 
-* [ ] **`HistoryEntry` Object Structure:**
-    * This defines a single point in time for a component.
-    * **`.state`**: A snapshot of the component's `value`.
-    * **`.timestamp`**: The time of the change (`2025-07-20T...`).
-    * **`.status`**: A string, either `'active'` or `'inactive'` (for archived redo branches).
-    * **`.previousChange`**: A direct reference to the globally previous `HistoryEntry` object, forming the decentralized undo chain.
+-----
 
-* [ ] **Raw Data Classes:**
-    * `GfmBlock`: A simple class to hold a string of Markdown text.
-    * `SvgObject`: A class to hold the parsed data from an `{% svg %}` block (id, attributes, inline definitions).
+### \#\# Final Project TODO List
 
-* [ ] **`QharboxDocument` Class:**
-    * The top-level container.
-    * **`.frontmatter`**: An object for the YAML frontmatter.
-    * **`.content`**: An array of `StatefulComponent` instances.
+#### Part 1: Core Data Structures & State (`src/core/`)
 
-***
-## Part 2: The Ingestor (Parser)
+  * [ ] **`DocumentSnapshot.js`**: Defines the top-level state wrapper for versioning and recovery.
 
-This module's job is to read a `.qhb` file and create the in-memory `QharboxDocument`.
+      * **`.document`**: An instance of the `QharboxDocument` class.
+      * **`.metadata`**: An object containing data about the snapshot, e.g., `{ timestamp: '2025-07-20T19:07:00.000Z', type: 'auto-save' }`.
 
-* [ ] **Create the `Ingestor` Class:**
-    * **`parse(qhbString)` method:**
-        * It will scan the document's content, creating new objects whenever it encounters either a **`{% svg %}` block** or a **line starting with `# `**.
-        * For each delimited chunk, it will create a `GfmBlock` or `SvgObject`.
-        * It will wrap each of these raw data objects in a `StatefulComponent` before adding it to the `QharboxDocument.content` array.
+  * [ ] **`QharboxDocument.js`**: Defines the class representing the raw document content.
 
-***
-## Part 3: Global History Management
+      * **`.frontmatter`**: An object for the key-value pairs from the YAML frontmatter.
+      * **`.definitions`**: A `Map` where keys are definition IDs (e.g., `'my_arrow'`) and values are the parsed SVG shape data from `{% svgdef %}` blocks.
+      * **`.content`**: An array holding the ordered sequence of `StatefulComponent` instances.
 
-This is the application-level logic that powers the main undo/redo feature.
+  * [ ] **`StatefulComponent.js`**: Defines the "monad" wrapper for every individual piece of content.
 
-* [ ] **Establish Global State Variables:**
-    * `let historyHead = null;` // A pointer to the most recent `HistoryEntry`
-    * `let redoBuffer = [];`    // An array to hold undone `HistoryEntry` objects
+      * **`.value`**: A reference to an instance of `GfmBlock` or `SvgObject`.
+      * **`.history`**: An array of `HistoryEntry` objects for the component's private, internal history.
+      * **`.purgeHistory()`**: A method that sets the `.status` of all its history entries to `'inactive'`.
 
-* [ ] **Implement Core History Functions:**
-    * **`handleNewChange(changeEntry)`**:
-        * Sets the `.previousChange` of the new entry to the current `historyHead`.
-        * Updates `historyHead` to point to the `changeEntry`.
-        * **Archives** the `redoBuffer` entries back to their source components with an `'inactive'` status, then clears the buffer.
-    * **`handleUndo()`**:
-        * Takes the entry from `historyHead`.
-        * Pushes it onto the `redoBuffer`.
-        * Reverts the state of the associated component.
-        * Moves `historyHead` to `historyHead.previousChange`.
-    * **`handleRedo()`**:
-        * Pops an entry from `redoBuffer`.
-        * Applies its state to the associated component.
-        * Re-links it to the undo chain and updates `historyHead`.
+  * [ ] **Component Data Classes (`GfmBlock.js`, `SvgObject.js`):**
 
-***
-## Part 4: Renderers & Serializer
+      * **`GfmBlock`**: Implements the private `#internalState` (string or array) and the public `get value()` to handle non-destructive merging.
+      * **`SvgObject`**: Holds data from an `{% svg %}` block, including the `use: string | null` property for instancing.
 
-These modules handle drawing the document to the screen and writing it back to a file.
+  * [ ] **`HistoryEntry.js` (Object Structure):** Defines the structure for a single undo/redo-able change.
 
-* [ ] **Create Renderer Classes (`GfmRenderer`, `SvgRenderer`):**
-    * **`render(document, targetElement)`**: Performs the initial full draw of all content.
-    * **`update(document, targetElement)` (Future-Proofing)**: A placeholder method that will eventually use the `.isDirty` flag on `StatefulComponent`s to perform efficient partial re-renders.
+      * **`.state`**: A snapshot of a component's raw value.
+      * **`.timestamp`**: A `Date` object or ISO string of when the change occurred.
+      * **`.status`**: `'active'` or `'inactive'`.
+      * **`.previousChange`**: The reference to the globally previous `HistoryEntry`, forming the undo chain.
 
-* [ ] **Create the `Serializer` Class:**
-    * **`serialize(qharboxDocument)`**:
-        * Iterates through the `QharboxDocument.content` array.
-        * For each `StatefulComponent`, it unwraps the `.value` to get the raw data.
-        * Formats the raw data back into a valid `.qhb` plaintext string.
+#### Part 2: The Ingestor & Serializer (`src/io/`)
+
+  * [ ] **`Ingestor.js`**: Reads a `.qhb` string and builds the initial `DocumentSnapshot`.
+
+      * Its `parse()` method will create a `QharboxDocument`, populate it by parsing `svgdef` blocks and splitting GFM content on headers/SVGs, and then wrap the final document in a `DocumentSnapshot`.
+
+  * [ ] **`Serializer.js`**: Writes an in-memory `DocumentSnapshot` back to a `.qhb` string.
+
+      * Its `serialize()` method will unwrap the `.document` from the snapshot and correctly format the `.definitions` and `.content` into plaintext.
+
+#### Part 3: Editor & History Logic (`src/editor/`)
+
+  * [ ] **`mutations.js`**: Implements functions that change the document structure.
+
+      * **`splitBlock()`** and **`mergeBlocks()`** for `GfmBlock` objects.
+      * Logic to update all instances when an **`svgdef`** is edited.
+
+  * [ ] **`history.js`**: Implements the global undo/redo logic.
+
+      * **`handleNewChange()`**: Includes archiving the `redoBuffer`.
+      * **`handleUndo()`** and **`handleRedo()`**.
+
+#### Part 4: The Renderers (`src/rendering/`)
+
+  * [ ] **`GfmRenderer.js` & `SvgRenderer.js`**:
+      * The `SvgRenderer` must handle the `.use` property on `SvgObject`s.
+      * Include placeholder `update()` methods for future partial-rendering optimizations.
+
+#### Part 5: The Orchestrator (`src/app.js`)
+
+  * [ ] **Implement the Orchestrator:** This is the main controller tying everything together.
+      * **Initialize** all modules.
+      * **Hold Global State**: Manage `historyHead`, `redoBuffer`, and the "current" working `DocumentSnapshot`.
+      * **Manage Snapshots**: Maintain a list of historical snapshots. Implement a `createSnapshot()` utility and call it periodically for auto-saving.
+      * **Wire UI Events**: Connect user actions to the appropriate functions from `editor/history.js` and `editor/mutations.js`.
+      * **Manage Process Flow**: Control the main application loop of loading data, parsing, and rendering.
