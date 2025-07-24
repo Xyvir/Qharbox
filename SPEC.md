@@ -72,21 +72,22 @@ The `content` key holds the main document body as a multi-line string (`|`). Thi
       * **Syntax:**
 
         ```twig
-        {# For inline graphics: #}
-        {% svg id: [unique_id], char_index: [N], ... %}
+        {# For inline graphics or parent definitions: #}
+        {% svg id: [unique_id], char_anchor: [N], ... %}
         <yaml_svg_graphic_definitions>
         {% endsvg %}
 
-        {# For external graphics: #}
-        {% svg id: [unique_id], char_index: [N], src: "[relative_path]", ... %}
-        {% endsvg %}
+        {# For external graphics or children objects: #}
+        {% svg id: [unique_id], char_anchor: [N], src: "[relative_path]"/[parent_id], ... %}
+     
         ```
 
       * **Attributes:**
 
           * **`id`** (string, required): A unique identifier for the SVG object, essential for persistence and future collaboration features.
-          * **`char_index`** (integer, required): The 0-indexed character position on the logical line of GFM text that precedes the block. This determines the anchor point.
-          * **`src`** (string, optional): A relative path to an external `.svg` file. If `src` is provided, any inline definitions are ignored.
+          * **`char_anchor`** (integer, optional): The 0-indexed character position on the logical line of GFM text that precedes the block. This determines the anchor point.
+                               If ommited the object will not be rendered and assumed to be a parent definition for later children to reference.
+          * **`src`** (string, optional): A relative path to an external `.svg` file, or the 'id' of a parent object. A child will inherent all properties of the parent, unless overwritten.
           * **`offset_x_qx`**, **`offset_y_qx`**, **`svg_anchor_x_qx`**, **`svg_anchor_y_qx`**: Attributes for precisely positioning the graphic relative to its anchor.
 
       * **Inline Definitions (`<yaml_svg_graphic_definitions>`):**
@@ -183,9 +184,10 @@ Package the entire editor application (HTML, CSS, JS) as a self-contained Web Br
 
 ### Future Considerations & Stretch Goals
 
+  * **Persistent Undo History**: Extend the editor's data store to save a granular operation history across sessions.
   * **QHB File Transclusion**: Develop a syntax (e.g., `{{ include ./path/to/another.qhb }}`) to embed one QHB file within another.
   * **Advanced Collaboration**: Implement a CRDT-based model for true real-time, multi-author collaboration.
-  * **Persistent Undo History**: Extend the editor's data store to save a granular operation history across sessions.
   * **Katex Support**
   * **Pandoc Extension**: Create a Pandoc filter to convert QHB files to other formats like PDF and LaTeX.
   * **Mermaid.js Exporter**: Develop an extension for Mermaid.js that allows diagrams to be exported directly to the Qharbox format.
+  * **Ascii-only Export**: A option to allow to attempt to export all SVG object outlines as Ascii-art.
