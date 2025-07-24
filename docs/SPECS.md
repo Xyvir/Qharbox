@@ -85,60 +85,17 @@ The `content` key holds the main document body as a multi-line string (`|`). Thi
       * **Attributes:**
 
           * **`id`** (string, required): A unique identifier for the SVG object, essential for persistence and future collaboration features.
-          * **`char_anchor`** (integer, optional): The 0-indexed character position on the logical line of GFM text that precedes the block. This determines the anchor point.
+          * **`anchor`** (integer, optional): The 0-indexed character position on the logical line of GFM text that precedes the block. This determines the anchor point.
                                If ommited the object will not be rendered and assumed to be a parent definition for later children to reference.
           * **`src`** (string, optional): A relative path to an external `.svg` file, or the 'id' of a parent object. A child will inherent all properties of the parent, unless overwritten.
-          * **`offset_x_qx`**, **`offset_y_qx`**, **`svg_anchor_x_qx`**, **`svg_anchor_y_qx`**: Attributes for precisely positioning the graphic relative to its anchor.
+          * **`char_qx`**, **`char_qy`**, **`svg_qx`**, **`svg_qy`**: Attributes for precisely positioning the graphic relative to its anchor. Max range is -0.5 to 0.5
 
       * **Inline Definitions (`<yaml_svg_graphic_definitions>`):**
-        A list of YAML objects defining SVG primitives. This section is ignored if the `src` attribute is used.
+        A list of YAML objects defining SVG primitives. 
 
       * **Raster Image Handling:**
         Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission** to maintain the format's resolution-independent ethos. The recommended workflow is to convert a raster image into an SVG (e.g., via Inkscape) and embed the resulting SVG file.
 
------
-
-#### 2\. YAML Frontmatter
-
-Standard YAML key-value pairs at the beginning of the file, delimited by `---`. This section holds document metadata.
-
-  * **`rendering_defaults`** (map, optional): A map of rendering recommendations from the author. A Qharbox renderer should respect these defaults unless overridden by a higher-priority setting (e.g., application theme, user preferences).
-      * **`font_family`** (string, optional): A recommended CSS `font-family` string for the monospace font.
-      * **`font_size_px`** (number, optional): A recommended font size in pixels.
-
-#### 3\. Content Block
-
-The `content` key holds the main document body as a multi-line string (`|`). This block contains GFM text and Qharbox SVG extensions.
-
-  * **Text (GitHub Flavored Markdown)**: Qharbox supports GFM for all textual content. For precise anchoring, the GFM text **must** be rendered using a monospace font. Standard Markdown links can be used to reference other files: `[link text](./path/to/file.qhb)`.
-
-  * **Graphics (`{% svg %}` Block)**: Qharbox uses a custom block syntax to define or reference vector graphics.
-
-      * **Syntax:**
-
-        ```twig
-        {# For inline graphics: #}
-        {% svg id: [unique_id], char_index: [N], ... %}
-        <yaml_svg_graphic_definitions>
-        {% endsvg %}
-
-        {# For external graphics: #}
-        {% svg id: [unique_id], char_index: [N], src: "[relative_path]", ... %}
-        {% endsvg %}
-        ```
-
-      * **Attributes:**
-
-          * **`id`** (string, required): A unique identifier for the SVG object, essential for persistence and future collaboration features.
-          * **`char_index`** (integer, required): The 0-indexed character position on the logical line of GFM text that precedes the block. This determines the anchor point.
-          * **`src`** (string, optional): A relative path to an external `.svg` file. If `src` is provided, any inline definitions are ignored.
-          * **`offset_x_qx`**, **`offset_y_qx`**, **`svg_anchor_x_qx`**, **`svg_anchor_y_qx`**: Attributes for precisely positioning the graphic relative to its anchor.
-
-      * **Inline Definitions (`<yaml_svg_graphic_definitions>`):**
-        A list of YAML objects defining SVG primitives. This section is ignored if the `src` attribute is used.
-
-      * **Raster Image Handling:**
-        Direct embedding of raster images (e.g., PNG, JPEG) is an **intentional omission** to maintain the format's resolution-independent ethos. The recommended workflow is to convert a raster image into an SVG (e.g., via Inkscape) and embed the resulting SVG file.
 
 -----
 
