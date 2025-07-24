@@ -40,7 +40,7 @@
   * [ ] **`QharboxDocument.js`**: Defines the class representing the raw document content.
 
       * **`.frontmatter`**: An object for the key-value pairs from the YAML frontmatter.
-      * **`.definitions`**: A `Map` where keys are definition IDs (e.g., `'my_arrow'`) and values are the parsed SVG shape data from `{% svgdef %}` blocks.
+      * **`.svg-objects`**: A `Map` where keys are definition IDs (e.g., `'my_arrow'`) and values are the parsed SVG shape data from `{% svg %}` blocks.
       * **`.content`**: An array holding the ordered sequence of `StatefulComponent` instances.
 
   * [ ] **`StatefulComponent.js`**: Defines the "monad" wrapper for every individual piece of content.
