@@ -1,5 +1,5 @@
 # Qharbox
-A docs-as-code format uniting Markdown with SVG objects precisely anchored to the underlying monospaced character grid.
+A docs-as-code format uniting Markdown with SVG objects precisely anchored to the underlying monospace character grid.
 
 ## What is Qharbox?
 
