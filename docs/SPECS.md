@@ -186,6 +186,7 @@ Package the entire editor application (HTML, CSS, JS) as a self-contained Web Br
 ### Future Considerations & Stretch Goals
 
   * **QHB File Transclusion**: Develop a syntax (e.g., `{{ include ./path/to/another.qhb }}`) to embed one QHB file within another.
+  * **Document Stitching**: An extension of the default single-column monolith format that allows equal-size 'sister' documents for expanded horizontal step-movements.
   * **Advanced Collaboration**: Implement a CRDT-based model for true real-time, multi-author collaboration.
   * **Persistent Undo History**: Extend the editor's data store to save a granular operation history across sessions.
   * **Katex Support**
