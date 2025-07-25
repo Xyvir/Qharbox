@@ -21,3 +21,5 @@ This project is currently in the detailed specification phase. Qharbox file form
 For a complete technical breakdown of the format, rendering rules, and development plan, please see the full design document:
 
 [**View the Full Specification (`SPEC.md`)**](https://github.com/Xyvir/Qharbox/blob/main/docs/SPECS.md)
+
+Built on Svelt, Tanstack virtual.
