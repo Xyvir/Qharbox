@@ -18,7 +18,7 @@ These are the philosophical foundations that guide the design of the Qharbox for
   * **User-First Design & Content Ownership**:
       * **Cloud-Independent**: The format and its reference editor are intentionally designed with no direct cloud integrations. This ensures users always own and control their content and can use their preferred third-party syncing tools (Git, Dropbox, etc.).
       * **No AI Integration**: The project intentionally omits AI-powered features. This maintains a focused scope and respects user privacy, acknowledging that superior, dedicated AI tools exist elsewhere.
-  * **Full Architectural and UX Transparency: To provide ultimate control and awareness, our format and editor are intentionally human-readable, lightweight, and non-proprietary. No importing or exporting is required. This ensures you have a clear, transparent understanding of your formatting, content, and rendering, free from hidden complexities or vendor lock-in.
+  * **Full Architectural and UX Transparency**: To provide ultimate control and awareness, our format and editor are intentionally human-readable, lightweight, and non-proprietary. No importing or exporting is required. This ensures you have a clear, transparent understanding of your formatting, content, and rendering, free from hidden complexities or vendor lock-in.
   * **Decentralized & Future-Ready**: The format is designed for longevity and collaboration. By giving each graphic object a **unique, stable ID** and using a timestamp-based reconciliation approach (Last Write Wins), the groundwork is laid for future adoption of more advanced merging strategies like CRDTs, enabling robust multi-author workflows.
 
 -----
