@@ -89,6 +89,7 @@ The `content` key holds the main document body as a multi-line string (`|`). Thi
                                If ommited the object will not be rendered and assumed to be a parent definition for later children to reference.
           * **`src`** (string, optional): A relative path to an external `.svg` file, or the 'id' of a parent object. A child will inherent all properties of the parent, unless overwritten.
           * **`char_qx`**, **`char_qy`**, **`svg_qx`**, **`svg_qy`**: Attributes for precisely positioning the graphic relative to its anchor. Max range is -0.5 to 0.5
+          * **`char_qx2`**, **`char_qy2`**, **`svg_qx2`**, **`svg_qy2`**: An optional, secondary anchor. Useful for making sure the graphic reflows correctly while actively editing the underlying text.
 
       * **Inline Definitions (`<yaml_svg_graphic_definitions>`):**
         A list of YAML objects defining SVG primitives. 
