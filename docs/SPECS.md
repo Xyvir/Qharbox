@@ -140,7 +140,7 @@ The renderer must transform the SVG content to align with the text grid anchor.
 
 This outlines the development plan for creating a suite of tools for the QHB format.
 
-#### Step 1: Format Specification (Completed)
+#### Step 1: Format Specification
 
 Define the `.qhb` format, attributes, and rendering rules in this specification.
 
