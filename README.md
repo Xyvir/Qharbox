@@ -83,6 +83,22 @@ In a Qharbox-enabled viewer, this would render the code with a blue line pointin
 5.  Place the rendered text inside.
 6.  Inject the `<svg>` content into a layer on top of the text, updating its elements' positions based on the calculated coordinates.
 
+## Project Foundation and Architecture
+
+The most effective way to build the Qharbox editor is to use a modern UI framework, with **Svelte** being the primary candidate due to its strong fit with the Logseq plugin ecosystem. This approach provides a modular, state-driven "sandbox" for the entire component.
+
+The project will be built by wrapping a powerful, extensible text editor engine. **CodeMirror 6** was chosen as the ideal foundation because it is not a monolithic editor but a modular toolkit. This allows for deep customization.
+
+---
+## Rendering and UI Implementation
+
+The architecture will consist of several key components working together within a Svelte wrapper:
+
+1.  **Core Text Engine:** CodeMirror 6 will handle the rendering of the text from the `qx-text` block.
+2.  **SVG Overlay:** A custom CodeMirror 6 "layer" extension will be created to render the SVG elements from the `qx-markups` block. This layer will sit on top of the text canvas.
+3.  **Coordinate System:** The renderer will operate under the assumption of a **monospace font**. This provides a major performance and simplicity advantage. On initialization, the renderer will measure a single character's width and a single line's height. All subsequent anchor calculations (`line`, `char`) will be simple multiplications based on these two stored values, avoiding complex DOM queries.
+4.  **Bespoke UI Input:** The unique multi-modal UI (left-click-draw, right-click-select) will be implemented as a custom CodeMirror 6 **input handler extension**. This extension will intercept raw DOM events (`mousedown`, `contextmenu`, etc.) *before* CodeMirror's default handlers. By returning `true` after processing an event, the extension will prevent the editor's default behaviors (like moving the cursor), ensuring the bespoke UX works without disruption.
+
 ## Roadmap
 
 * **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI for editing Qharbox blocks.
