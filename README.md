@@ -4,37 +4,37 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Qharbox allows you to draw lines, add callouts, and attach SVG primitives to your prose, code snippets, or any block of text without leaving your favorite Markdown editor. It is a tool for creating deeply integrated, text-focused diagrams and analyses.
+Qharbox allows you to draw lines, highlight sections, and attach SVG primitives to your prose or code snippets without leaving your favorite Markdown editor. It is a tool designed for creating deeply integrated, text-focused diagrams with a fast, intuitive, and tool-free user interface.
 
-The project is built on a unique core philosophy that enables powerful features within the limitations of standard text-based formats.
+The project is built on two core philosophies: a unique multi-modal UI for interaction and a text-based anchor system for portability.
 
-## The Core Philosophy: The Quantum-Character Box
+## Core Philosophy 1: Multi-Modal UI
 
-The foundational principle of Qharbox is the **Quantum-Character Box**. This concept dictates that all graphical alignment is abstracted in terms of a single-dimensional coordinate system that maps directly to the characters in the text being annotated. An anchor point isn't an (x, y) pixel coordinate, but rather a logical address, such as "line 5, character 12."
+Qharbox rejects the traditional "toolbox" approach of switching between separate tools (like a "line tool," "select tool," "text tool"). Instead, interaction is multi-modal and based on intuitive mouse actions:
 
-This approach treats the annotation data as being in a "quantum" state:
+* **Left-Click is Always Draw:** Clicking and dragging with the left mouse button always creates a new primitive, such as a line or a rectangle. There is no need to select a "draw" mode.
+* **Right-Click is Always Select:** A single right-click always selects a graphical object or text. Right-clicking and dragging creates a selection box to select multiple objects and text simultaneously.
+* **Flattened Node & Layer Management:** Editing nodes, resizing shapes, and managing layers is done directly on the canvas with a simple, flat context menu system, eliminating fiddly panels and inspectors.
+* **Slash Command Palettes:** Pressing `/` opens a temporary command palette. This palette allows you to insert new primitives, but more importantly, it's populated with previously used shapes. This allows you to quickly re-instance complex objects and supports a system of inheritance to reduce SVG clutter.
 
-1.  **As Raw Text:** In its native form, the data consists of two simple text blocks: the content you are annotating, and the annotation instructions. It is portable, human-readable, and version-controllable.
-2.  **As a Rendered Graphic:** When observed by a Qharbox-compatible renderer, the 1D character-based coordinates are "resolved" into a 2D SVG overlay, creating a rich, interactive diagram precisely aligned with the source text.
+This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
 
-By abstracting complex 2D drawings into a simple, text-relative format, Qharbox ensures the source of truth is always just text.
+## Core Philosophy 2: Text-Based Anchoring & Degradation
 
-### A Key Benefit: Graceful Degradation
+All graphical annotations are anchored logically to the text itself, using a simple `line` and `character` number coordinate system.
 
-A direct and powerful result of this philosophy is **Graceful Degradation**. Because the underlying data is just structured text, your Qharbox diagrams remain perfectly useful even in standard Markdown viewers. The annotations simply "collapse" into a separate code block, leaving the source text completely undisturbed and readable.
+A powerful result of this philosophy is **Graceful Degradation**. Because the source data is just two separate text blocks, your Qharbox diagrams remain perfectly useful in standard Markdown viewers. The annotations simply "collapse" into a separate code block, leaving the source text completely undisturbed and readable.
 
 ## How It Works: The Two-Block System
 
-To implement this in Markdown, Qharbox uses a pair of fenced code blocks:
+Qharbox uses a pair of fenced code blocks. All text to be displayed must exist in the first block; the second block contains only non-text SVG primitives.
 
-1.  **The Text Block (`qharbox-text`):** The source text that you wish to annotate.
-2.  **The Annotation Block (`qharbox-annotations`):** An SVG block containing all the vector data (lines, text, etc.) and the character-based coordinates for alignment.
+1.  **The Text Block (`qharbox-text`):** The source text that you wish to annotate. This is the **only** place text content should live.
+2.  **The Annotation Block (`qharbox-annotations`):** An SVG block containing only shape data (`<line>`, `<rect>`, etc.) and the character-based coordinates for alignment.
 
 ---
 
 ### Example Usage
-
-Here is what a complete Qharbox component looks like in raw Markdown.
 
 ```markdown
 ​```qharbox-text
@@ -48,18 +48,12 @@ function initialize(value) {
 ​```qharbox-annotations
 <svg xmlns="http://www.w3.org/2000/svg">
   <line data-anchor-line="2" data-anchor-char="21" x2="100" y2="-20" stroke="dodgerblue" stroke-width="2"/>
-  <text x="105" y="-15" fill="dodgerblue" font-size="14" font-family="sans-serif">
-    The nullish coalescing operator (??) provides a default value.
-  </text>
-  
   <rect data-anchor-line="4" data-anchor-char="2" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
 </svg>
 ​```
 ```
 
-In a standard viewer, this shows two distinct code blocks. In a Qharbox-enabled viewer, this would render the code with the blue callout line and the orange highlight box drawn on top of it.
-
-
+In a Qharbox-enabled viewer, this would render the code with a blue line pointing to the nullish coalescing operator and an orange box highlighting the `process(count);` line.
 
 ---
 
@@ -67,17 +61,13 @@ In a standard viewer, this shows two distinct code blocks. In a Qharbox-enabled 
 
 ### `qharbox-text` Block
 
-This block contains the source text to be annotated.
-
-* **Language Identifier:** Must be `qharbox-text`.
-* **Content:** Any plain text, prose, or code.
+* **Language Identifier:** `qharbox-text`.
+* **Content:** Any plain text, prose, or code. **This is the only block where text intended for display should be placed.**
 
 ### `qharbox-annotations` Block
 
-This block contains the vector data for all annotations. It must immediately follow its corresponding `qharbox-text` block.
-
-* **Language Identifier:** Must be `qharbox-annotations`.
-* **Format:** A single, self-contained `<svg>` XML element.
+* **Language Identifier:** `qharbox-annotations`.
+* **Format:** A single, self-contained `<svg>` XML element containing **only non-text primitives** (e.g., `<line>`, `<rect>`, `<circle>`, `<path>`).
 * **Custom Anchor Attributes:** SVG elements that need to be aligned to the text must use the following data attributes.
     * `data-anchor-line` (Required): The line number within the text block (1-indexed).
     * `data-anchor-char` (Required): The character number on that line (1-indexed).
@@ -86,21 +76,18 @@ This block contains the vector data for all annotations. It must immediately fol
 
 ## Rendering Logic (For Integrators)
 
-A custom renderer must perform the following steps:
-
-1.  Identify a `qharbox-text` block.
-2.  Render this text into a container (e.g., a `<pre><code>` block), preserving whitespace.
-3.  Find the next sibling block and verify it is `qharbox-annotations`.
-4.  For each element with anchor attributes in the SVG, calculate the precise (x, y) pixel coordinates of the specified character within the rendered text container. This is the most complex step.
-5.  Create a root container `<div>` with relative positioning.
-6.  Place the rendered text inside.
-7.  Inject the `<svg>` content into the container, layered on top of the text using absolute positioning, and update its elements' positions based on the calculated coordinates.
+1.  Identify a `qharbox-text` block and render its content into a container (e.g., a `<pre><code>` block).
+2.  Find the next sibling `qharbox-annotations` block.
+3.  For each element in the SVG, calculate the precise (x, y) pixel coordinates of its `data-anchor-line` and `data-anchor-char` within the rendered text container.
+4.  Create a root `<div>` with relative positioning.
+5.  Place the rendered text inside.
+6.  Inject the `<svg>` content into a layer on top of the text, updating its elements' positions based on the calculated coordinates.
 
 ## Roadmap
 
-* **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse and render Qharbox blocks.
-* **Phase 2: Editor Development:** Create a standalone web-based editor that allows users to create Qharbox diagrams with a GUI and export the resulting two-block Markdown code.
-* **Phase 3: Image Annotation:** Implement the originally planned feature to allow an image background as an alternative canvas to a text block.
+* **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI for editing Qharbox blocks.
+* **Phase 2: Editor Development:** Create a standalone web-based editor that provides the core Qharbox editing experience and exports the resulting two-block Markdown code.
+* **Phase 3: Image Annotation:** Implement functionality to allow an image as an alternative canvas to a text block.
 
 ## License
 
