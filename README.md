@@ -6,18 +6,29 @@
 
 Qharbox allows you to create rich, graphical callouts and annotations on images without leaving your favorite Markdown editor. It's designed for technical documentation, tutorials, and complex note-taking where a static image just isn't enough.
 
-The core philosophy is **Graceful Degradation**: your Qharbox diagrams will remain readable and understandable even in standard Markdown viewers that don't have the Qharbox renderer installed.
+The project is built on a unique core philosophy that enables powerful features within the limitations of standard text-based formats.
 
-## The Problem
+## The Core Philosophy: The Quantum-Character Box
 
-Standard images in Markdown are static. While tools like Mermaid or PlantUML are great for generating structured charts, they don't allow for freeform annotation of existing images. Qharbox fills this gap, enabling you to add lines, text, and interactive elements to any image in a way that is both powerful and portable.
+The foundational principle of Qharbox is the **Quantum-Character Box**. This concept dictates that all graphical alignment and annotation data is abstracted in terms of a single-dimensional coordinate system, as if every possible position on a 2D canvas could be mapped to a character in a string.
 
-## Core Concepts: The Two-Block System
+This approach treats the annotation data as being in a "quantum" state:
 
-To achieve graceful degradation, Qharbox uses a pair of fenced code blocks. This ensures the raw data is always visible and that standard Markdown parsers won't break. A custom Qharbox renderer will intelligently combine these two blocks into one interactive component.
+1.  **As Raw Text:** In its native form, the data is a simple, linear sequence of characters and coordinates. It is portable, human-readable, and can be stored in any plain text format.
+2.  **As a Rendered Graphic:** When observed by a Qharbox-compatible renderer, this 1D data is "resolved" into a rich, 2D interactive diagram layered on top of its source image.
 
-1.  **The Meta Block (`qharbox-meta`):** A human-readable block containing configuration and essential information, written in YAML.
-2.  **The SVG Block (`qharbox-svg`):** Contains all the raw vector data for the annotations, including lines, text, and anchor points.
+By abstracting complex 2D graphs into a simple 1D format, Qharbox ensures that the source of truth is always just text.
+
+### A Key Benefit: Graceful Degradation
+
+A direct and powerful result of the Quantum-Character Box philosophy is **Graceful Degradation**. Because the underlying data is just structured text, your Qharbox diagrams remain readable and understandable even in standard Markdown viewers that don't have the Qharbox renderer installed. The diagram simply "collapses" to its text state without losing any core information.
+
+## How It Works: The Two-Block System
+
+To implement this philosophy in Markdown, Qharbox uses a pair of fenced code blocks. A custom Qharbox renderer will intelligently combine these two blocks into one interactive component.
+
+1.  **The Meta Block (`qharbox-meta`):** A human-readable block containing configuration, including the source image and its dimensions.
+2.  **The SVG Block (`qharbox-svg`):** Contains all the 1D anchor data and annotation text, structured within a standard SVG format for rendering.
 
 ---
 
@@ -40,7 +51,6 @@ title: "Analysis of the Op-Amp Inverting Amplifier"
   <circle id="anchor-2" data-anchor-id="2" cx="400" cy="300" r="3" fill="none" />
   
   <line data-anchor-ref="1" x1="150" y1="250" x2="200" y2="150" stroke="crimson" stroke-width="2"/>
-  
   <text data-anchor-ref="1" x="205" y="145" fill="crimson" font-size="14" font-family="sans-serif">
     This is the feedback resistor (Rƒ). Its value determines the gain.
   </text>
@@ -53,7 +63,7 @@ title: "Analysis of the Op-Amp Inverting Amplifier"
 ​```
 ```
 
-In a standard viewer, this shows two distinct, readable code blocks. In a Qharbox-enabled viewer (like a Logseq plugin or a custom MarkText fork), this would render as a single interactive diagram.
+In a standard viewer, this shows two distinct, readable code blocks. In a Qharbox-enabled viewer, this renders as a single interactive diagram.
 
 
 
@@ -80,9 +90,9 @@ This block contains the vector data for all annotations. It must immediately fol
 
 * **Language Identifier:** Must be `qharbox-svg`.
 * **Format:** A single, self-contained `<svg>` XML element.
-* The `viewBox` attribute of the `<svg>` tag should match the `width` and `height` from the meta block (e.g., `viewBox="0 0 800 600"`).
+* The `viewBox` attribute of the `<svg>` tag should match the `width` and `height` from the meta block.
 * **Custom Attributes for Interactivity:**
-    * `data-anchor-id`: Used on an element (like a `<circle>`) to define a logical anchor point. The value should be a unique identifier within the SVG.
+    * `data-anchor-id`: Used on an element to define a logical anchor point. The value should be a unique identifier. This represents a point in the 1D coordinate space.
     * `data-anchor-ref`: Used on annotation elements (`<line>`, `<text>`, etc.) to associate them with a specific anchor defined by `data-anchor-id`.
 
 ---
@@ -91,13 +101,13 @@ This block contains the vector data for all annotations. It must immediately fol
 
 A custom renderer should perform the following steps:
 
-1.  Identify a `qharbox-meta` code block.
-2.  Parse its YAML content to get the configuration.
-3.  Find the next sibling block and verify it is a `qharbox-svg` block.
+1.  Identify a `qharbox-meta` code block and parse its YAML content.
+2.  Find the next sibling block and verify it is a `qharbox-svg` block.
+3.  Based on the Quantum-Character Box logic, resolve the 1D anchor data from the SVG into 2D (x, y) coordinates relative to the image dimensions.
 4.  Create a root container `<div>` with relative positioning.
-5.  Inject an `<img>` element into the container with its `src` set to `image_src`.
-6.  Inject the `<svg>` content from the SVG block into the container. This SVG should be layered on top of the image using absolute positioning.
-7.  Attach JavaScript event listeners to the SVG elements to enable interactivity (e.g., dragging anchors, editing text).
+5.  Inject an `<img>` element into the container.
+6.  Inject the `<svg>` content into the container, layered on top of the image.
+7.  Attach JavaScript event listeners to the SVG elements to enable interactivity.
 
 ## Roadmap
 
