@@ -29,15 +29,15 @@ A powerful result of this philosophy is **Graceful Degradation**. Because the so
 
 Qharbox uses a pair of fenced code blocks. All text to be displayed must exist in the first block; the second block contains only non-text SVG primitives.
 
-1.  **The Text Block (`qharbox-text`):** The source text that you wish to annotate. This is the **only** place text content should live.
-2.  **The Annotation Block (`qharbox-annotations`):** An SVG block containing only shape data (`<line>`, `<rect>`, etc.) and the character-based coordinates for alignment.
+1.  **The Text Block (`qx-text`):** The source text that you wish to annotate. This is the **only** place text content should live.
+2.  **The Markup Block (`qx-markups`):** An SVG block containing only shape data (`<line>`, `<rect>`, etc.) and the character-based coordinates for alignment.
 
 ---
 
 ### Example Usage
 
 ```markdown
-​```qharbox-text
+​```qx-text
 function initialize(value) {
   let count = value ?? 0;
   // This is where the magic happens.
@@ -45,7 +45,7 @@ function initialize(value) {
 }
 ​```
 
-​```qharbox-annotations
+​```qx-markups
 <svg xmlns="http://www.w3.org/2000/svg">
   <line data-anchor-line="2" data-anchor-char="21" x2="100" y2="-20" stroke="dodgerblue" stroke-width="2"/>
   <rect data-anchor-line="4" data-anchor-char="2" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
@@ -59,14 +59,14 @@ In a Qharbox-enabled viewer, this would render the code with a blue line pointin
 
 ## Technical Specification
 
-### `qharbox-text` Block
+### `qx-text` Block
 
-* **Language Identifier:** `qharbox-text`.
+* **Language Identifier:** `qx-text`.
 * **Content:** Any plain text, prose, or code. **This is the only block where text intended for display should be placed.**
 
-### `qharbox-annotations` Block
+### `qx-markups` Block
 
-* **Language Identifier:** `qharbox-annotations`.
+* **Language Identifier:** `qx-markups`.
 * **Format:** A single, self-contained `<svg>` XML element containing **only non-text primitives** (e.g., `<line>`, `<rect>`, `<circle>`, `<path>`).
 * **Custom Anchor Attributes:** SVG elements that need to be aligned to the text must use the following data attributes.
     * `data-anchor-line` (Required): The line number within the text block (1-indexed).
@@ -76,8 +76,8 @@ In a Qharbox-enabled viewer, this would render the code with a blue line pointin
 
 ## Rendering Logic (For Integrators)
 
-1.  Identify a `qharbox-text` block and render its content into a container (e.g., a `<pre><code>` block).
-2.  Find the next sibling `qharbox-annotations` block.
+1.  Identify a `qx-text` block and render its content into a container (e.g., a `<pre><code>` block).
+2.  Find the next sibling `qx-markups` block.
 3.  For each element in the SVG, calculate the precise (x, y) pixel coordinates of its `data-anchor-line` and `data-anchor-char` within the rendered text container.
 4.  Create a root `<div>` with relative positioning.
 5.  Place the rendered text inside.
