@@ -37,7 +37,6 @@ Qharbox uses a pair of fenced code blocks. All text to be displayed must exist i
 ---
 
 ### Example Usage
-
 ```markdown
 ​```qx-text
 function initialize(value) {
@@ -48,7 +47,7 @@ function initialize(value) {
 ​```
 
 ​```qx-markups
-<svg xmlns="http://www.w.w3.org/2000/svg">
+<svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
   <g data-anchor-line="2" data-anchor-char="21"
      data-anchor-x="0" data-anchor-y="0">
     <line x1="0" y1="0" x2="100" y2="-20" stroke="dodgerblue" stroke-width="2"/>
@@ -58,11 +57,16 @@ function initialize(value) {
      data-anchor-x="60" data-anchor-y="10">
     <rect x="0" y="0" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
   </g>
+
+  <g data-anchor-line="3" data-anchor-char="21"
+     data-anchor-x="30" data-anchor-y="5">
+    <path d="M 0,5 C 5,-15 55,-15 60,5 C 55,25 5,25 0,5" 
+          stroke="crimson" stroke-width="2" fill="none" />
+  </g>
 </svg>
 ​```
-```
 ---
-
+```
 ## Technical Specification
 
 ### `qx-text` Block
