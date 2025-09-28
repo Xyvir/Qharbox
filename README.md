@@ -12,13 +12,19 @@ The project is built on two core philosophies: a unique multi-modal UI for inter
 
 Qharbox rejects the traditional "toolbox" approach of switching between separate tools. Instead, interaction is multi-modal and based on intuitive mouse actions:
 
-* **Left-Click is Always Draw:** Clicking and dragging with the left mouse button always creates a new pen-stroke (with shape detection and intelligent snapping).
-* **Right-Click is Always Select:** A single right-click always selects an object or text. Right-clicking and dragging creates a selection box.
-* **Implicit Node & Layer Management:** Qharbox has light markup in mind. Z-position is handled in-editor by "last-selected-on-top," while the SVG block's top-to-bottom order provides manual control.
-* **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly create, insert, or re-instance complex shapes.
-* **Undo is Erase:** No dedicated erase function; either undo or delete the underlying anchor to remove markups.
+* **Left-Click is Always Draw (with Shape Recognition):** Clicking and dragging with the left mouse button always draws a freeform path. The system has a "weak" shape detection algorithm; if your stroke closely resembles a rectangle, ellipse, or straight line, it will be automatically converted to the corresponding clean SVG primitive upon release.
 
-This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
+* **Right-Click is Always Select & Transform:** A single right-click always selects an object or text. When a shape is selected, classic transformation handles appear, allowing it to be moved, resized, and **rotated**. The system intentionally avoids complex tool modes (like skewing) to maintain simplicity. Right-clicking and dragging creates a selection box.
+
+* **Simple GUI, Deep Customization:** The Qharbox UI is intentionally minimalist. It exposes only the most essential controls, like a simple toggle for opaque/transparent fills. Advanced customizations—such as specific line thicknesses, precise opacity levels, or custom hex color codes—are handled by directly editing the attributes in the `qx-markups` code block.
+
+* **Implicit Node & Layer Management:** Qharbox has light markup in mind. Z-position is handled in-editor by "last-selected-on-top," while the SVG block's top-to-bottom order provides manual control.
+
+* **Slash Command Palettes for Insertion:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes. Selecting a shape activates a "ghost" preview that follows the cursor, allowing the user to position it before clicking to insert.
+
+* **Undo is Erase:** There is no dedicated erase function. To remove markups, the user can either use the standard undo command (`Ctrl/Cmd + Z`) or delete the underlying text anchor.
+
+This design keeps the user in a creative flow state, removing the friction of constantly switching between modes or fiddling with unimportant minutia.
 
 ---
 ## Core Philosophy 2: Text-Based Anchoring & Graceful Degradation
@@ -27,7 +33,7 @@ All graphical markups are attached to the document via a flexible anchor system.
 1.  A **text anchor** (`anchor-line`, `anchor-char`) that specifies a point on the text grid.
 2.  A **shape anchor** (`anchor-x`, `anchor-y`) that specifies which point on the markup itself connects to the text anchor.
 
-A powerful result of this philosophy is **Graceful Degradation**. Because the source data is just two separate text blocks, your Qharbox diagrams remain perfectly useful in standard Markdown viewers.
+A powerful result of this philosophy is **Graceful Degradation**. Because the source data is just two separate text blocks, your Qharbox diagrams remain perfectly useful in standard Markdown viewers. The markups simply "collapse" into a separate code block, leaving the source text completely undisturbed.
 
 ---
 ## How It Works: The Two-Block System
@@ -40,38 +46,37 @@ Qharbox uses a pair of fenced code blocks. The user interacts with a rendered, g
 ---
 ## Example Usage
 
-```markdown
-​```qx-text
-function initialize(value) {
-  let count = value ?? 0;
-  // This is where the magic happens.
-  process(count);
-}
-​```
+    ​```qx-text
+    function initialize(value) {
+      let count = value ?? 0;
+      // This is where the magic happens.
+      process(count);
+    }
+    ​```
+    
+    ​```qx-markups
+    <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+      <defs>
+        <g id="reusable-arrow">
+          <line x1="0" y1="0" x2="30" y2="0" stroke="currentColor" stroke-width="2"/>
+          <path d="M 30 0 L 25 -5 L 25 5 Z" fill="currentColor"/>
+        </g>
+      </defs>
+      <g anchor-line="4" anchor-char="2"
+         anchor-x="60" anchor-y="10">
+        <rect x="0" y="0" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
+      </g>
+      <g anchor-line="2" anchor-char="3"
+         anchor-x="0" anchor-y="0">
+        <use href="#reusable-arrow" fill="dodgerblue" transform="rotate(-45)" />
+      </g>
+      <g anchor-line="4" anchor-char="10"
+         anchor-x="0" anchor-y="0">
+        <use href="#reusable-arrow" fill="crimson" />
+      </g>
+    </svg>
+    ​```
 
-​```qx-markups
-<svg xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <g id="reusable-arrow">
-      <line x1="0" y1="0" x2="30" y2="0" stroke="currentColor" stroke-width="2"/>
-      <path d="M 30 0 L 25 -5 L 25 5 Z" fill="currentColor"/>
-    </g>
-  </defs>
-  <g anchor-line="4" anchor-char="2"
-     anchor-x="60" anchor-y="10">
-    <rect x="0" y="0" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
-  </g>
-  <g anchor-line="2" anchor-char="3"
-     anchor-x="0" anchor-y="0">
-    <use href="#reusable-arrow" fill="dodgerblue" transform="rotate(-45)" />
-  </g>
-  <g anchor-line="4" anchor-char="10"
-     anchor-x="0" anchor-y="0">
-    <use href="#reusable-arrow" fill="crimson" />
-  </g>
-</svg>
-​```
-```
 ---
 ## Technical Specification
 
@@ -109,10 +114,9 @@ The Qharbox editor will be built using a modern UI framework (**Svelte** is the 
 
 ### Editor Experience and Font Enforcement
 
-To ensure a seamless experience, the Qharbox renderer should be designed with two key behaviors:
-
-1.  **Font Enforcement:** The renderer will apply its own CSS to the `qx-text` block to enforce a monospace font. On initialization, it can also check if external user styles are overriding this with a variable-width font. If a conflict is detected, the renderer should display a clear, non-intrusive error message (e.g., "Qharbox rendering disabled: monospace font required") to the user.
-2.  **Collapsing Markup Block:** To maintain a clean interface, the `qx-markups` block should be **collapsed by default**. The user interacts with the visual overlay. The underlying markup is hidden unless a user explicitly clicks an icon (e.g., `</>`) to expand it for manual editing. The block should auto-collapse once the user clicks away from it.
+1.  **Font Enforcement:** The renderer will apply its own CSS to enforce a monospace font. If it detects a conflict from user styles, it should display a clear error message.
+2.  **Collapsing Markup Block:** The `qx-markups` block should be **collapsed by default**. The markup is hidden unless a user explicitly clicks an icon (e.g., `</>`) to expand it for manual editing. The block should auto-collapse once the user clicks away.
+3.  **Minimum Canvas Height:** The `qx-text` block should have a **minimum height** (e.g., 10 lines) to provide a usable drawing surface immediately. The block can still grow dynamically if more text is added.
 
 ---
 ## Rendering Logic (For Integrators)
@@ -129,9 +133,10 @@ To ensure a seamless experience, the Qharbox renderer should be designed with tw
 ---
 ## Roadmap
 
-* **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI.
-* **Phase 2: Editor Development:** Create a standalone web-based editor that provides the core Qharbox editing experience and exports the resulting Markdown code.
-* **Phase 3: Image & PDF Annotation:** Implement functionality to allow an image or PDF page as an alternative canvas.
+* **Phase 1: Logseq Plugin (Rendering):** Develop a Logseq plugin that can correctly parse and render existing `qx-text` and `qx-markups` blocks into a static, view-only visual. This establishes the core rendering logic.
+* **Phase 2: Logseq Plugin (Interactivity):** Enhance the plugin to enable the full multi-modal UI for creating, editing, and deleting markups directly on the canvas.
+* **Phase 3: Standalone Editor:** Wrap the core Svelte application into a simple standalone web or desktop app. This provides a focused writing/editing environment outside of Logseq.
+* **Phase 4: Image & PDF Annotation:** Implement functionality to allow an image or PDF page as an alternative canvas, or import an SVG as one Qharbox block per page.
 
 ## License
 
