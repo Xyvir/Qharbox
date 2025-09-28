@@ -19,14 +19,16 @@ Qharbox rejects the traditional "toolbox" approach of switching between separate
 
 This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
 
+---
 ## Core Philosophy 2: Text-Based Anchoring & Degradation
 
 All graphical markups are attached to the document via a flexible anchor system. An anchor is defined by two parts:
-1.  A **text anchor** (`line`, `char`) that specifies a point on the text grid.
+1.  A **text anchor** (`anchor-line`, `anchor-char`) that specifies a point on the text grid.
 2.  A **shape anchor** (`anchor-x`, `anchor-y`) that specifies which point on the markup itself connects to the text anchor.
 
 A powerful result of this philosophy is **Graceful Degradation**. Because the source data is just two separate text blocks, your Qharbox diagrams remain perfectly useful in standard Markdown viewers. The markups simply "collapse" into a separate code block, leaving the source text completely undisturbed.
 
+---
 ## How It Works: The Two-Block System
 
 Qharbox uses a pair of fenced code blocks. All text to be displayed must exist in the first block; the second block contains only non-text SVG primitives.
@@ -35,8 +37,8 @@ Qharbox uses a pair of fenced code blocks. All text to be displayed must exist i
 2.  **The Markup Block (`qx-markups`):** An SVG block containing shape data and the anchor coordinates.
 
 ---
+## Example Usage
 
-### Example Usage
 ```markdown
 ​```qx-text
 function initialize(value) {
@@ -47,26 +49,32 @@ function initialize(value) {
 ​```
 
 ​```qx-markups
-<svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
-  <g data-anchor-line="2" data-anchor-char="21"
-     data-anchor-x="0" data-anchor-y="0">
-    <line x1="0" y1="0" x2="100" y2="-20" stroke="dodgerblue" stroke-width="2"/>
-  </g>
-  
-  <g data-anchor-line="4" data-anchor-char="2"
-     data-anchor-x="60" data-anchor-y="10">
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g id="reusable-arrow">
+      <line x1="0" y1="0" x2="30" y2="0" stroke="currentColor" stroke-width="2"/>
+      <path d="M 30 0 L 25 -5 L 25 5 Z" fill="currentColor"/>
+    </g>
+  </defs>
+
+  <g anchor-line="4" anchor-char="2"
+     anchor-x="60" anchor-y="10">
     <rect x="0" y="0" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
   </g>
 
-  <g data-anchor-line="3" data-anchor-char="21"
-     data-anchor-x="30" data-anchor-y="5">
-    <path d="M 0,5 C 5,-15 55,-15 60,5 C 55,25 5,25 0,5" 
-          stroke="crimson" stroke-width="2" fill="none" />
+  <g anchor-line="2" anchor-char="3"
+     anchor-x="0" anchor-y="0">
+    <use href="#reusable-arrow" fill="dodgerblue" transform="rotate(-45)" />
+  </g>
+
+  <g anchor-line="4" anchor-char="10"
+     anchor-x="0" anchor-y="0">
+    <use href="#reusable-arrow" fill="crimson" />
   </g>
 </svg>
 ​```
----
 ```
+---
 ## Technical Specification
 
 ### `qx-text` Block
@@ -77,26 +85,47 @@ function initialize(value) {
 ### `qx-markups` Block
 
 * **Language Identifier:** `qx-markups`.
-* **Format:** A single, self-contained `<svg>` XML element containing **only non-text primitives** (e.g., `<line>`, `<rect>`), typically wrapped in a group `<g>` tag.
-* **Custom Anchor Attributes (on the `<g>` tag):**
-    * `data-anchor-line` (Required): The line number within the text block (1-indexed) where the shape is anchored.
-    * `data-anchor-char` (Required): The character number on that line (1-indexed).
-    * `data-anchor-x` (Optional, Default: `0`): The x-coordinate of the anchor point **within the shape's local coordinate system**.
-    * `data-anchor-y` (Optional, Default: `0`): The y-coordinate of the anchor point **within the shape's local coordinate system**.
+* **Format:** A single, self-contained `<svg>` XML element.
+* **Anchor Attributes (on a wrapper `<g>` tag):**
+    * `anchor-line` (Required): The line number within the text block (1-indexed).
+    * `anchor-char` (Required): The character number on that line (1-indexed).
+    * `anchor-x` (Optional, Default: `0`): The x-coordinate of the anchor point **within the shape's local coordinate system**.
+    * `anchor-y` (Optional, Default: `0`): The y-coordinate of the anchor point **within the shape's local coordinate system**.
+* **Instancing and Inheritance:**
+    * Complex or reusable shapes should be defined within a `<defs>` block at the top of the SVG. Each defined shape must have a unique `id`.
+    * To instance a defined shape, use the `<use>` element, referencing the `id` with `href="#shape-id"`. The `<use>` element can then be transformed (moved, scaled, rotated) independently.
 
 ---
+## Implementation Strategy
 
+### Project Foundation and Architecture
+
+The most effective way to build the Qharbox editor is to use a modern UI framework, with **Svelte** being the primary candidate due to its strong fit with the Logseq plugin ecosystem. This approach provides a modular, state-driven "sandbox" for the entire component.
+
+The project will be built by wrapping a powerful, extensible text editor engine. **CodeMirror 6** was chosen as the ideal foundation because it is not a monolithic editor but a modular toolkit. This allows for deep customization.
+
+### Rendering and UI Implementation
+
+The architecture will consist of several key components working together within a Svelte wrapper:
+
+1.  **Core Text Engine:** CodeMirror 6 will handle the rendering of the text from the `qx-text` block.
+2.  **SVG Overlay:** A custom CodeMirror 6 "layer" extension will be created to render the SVG elements from the `qx-markups` block. This layer will sit on top of the text canvas.
+3.  **Coordinate System:** The renderer will operate under the assumption of a **monospace font**. This provides a major performance and simplicity advantage. On initialization, the renderer will measure a single character's width and a single line's height. All subsequent anchor calculations (`line`, `char`) will be simple multiplications based on these two stored values, avoiding complex DOM queries.
+4.  **Bespoke UI Input:** The unique multi-modal UI (left-click-draw, right-click-select) will be implemented as a custom CodeMirror 6 **input handler extension**. This extension will intercept raw DOM events (`mousedown`, `contextmenu`, etc.) *before* CodeMirror's default handlers. By returning `true` after processing an event, the extension will prevent the editor's default behaviors (like moving the cursor), ensuring the bespoke UX works without disruption.
+
+---
 ## Rendering Logic (For Integrators)
 
 1.  Identify a `qx-text` block and render its content.
 2.  Find the next sibling `qx-markups` block.
-3.  For each group `<g>` in the SVG:
-    a. Calculate the absolute pixel position of the **text anchor** (`textAnchorX`, `textAnchorY`) from `data-anchor-line` and `data-anchor-char`.
-    b. Read the **shape anchor** offset (`shapeAnchorX`, `shapeAnchorY`) from `data-anchor-x` and `data-anchor-y`.
+3.  For each group `<g>` that has anchor attributes:
+    a. Calculate the absolute pixel position of the **text anchor** (`textAnchorX`, `textAnchorY`) from `anchor-line` and `anchor-char`.
+    b. Read the **shape anchor** offset (`shapeAnchorX`, `shapeAnchorY`) from `anchor-x` and `anchor-y`.
     c. Calculate the final transform: `translateX = textAnchorX - shapeAnchorX` and `translateY = textAnchorY - shapeAnchorY`.
-    d. Apply this as an SVG transform: `<g transform="translate(translateX, translateY)">...`.
+    d. Apply this as an SVG transform to the group: `<g transform="translate(translateX, translateY)">...`.
 4.  Layer the fully transformed SVG on top of the rendered text.
 
+---
 ## Roadmap
 
 * **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI for editing Qharbox blocks.
