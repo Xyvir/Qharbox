@@ -1,5 +1,7 @@
 # Qharbox
 
+From **Q**uantum C**har**acter **box**.
+
 **A modular engine for creating vector-based annotations directly on blocks of text within Markdown.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
