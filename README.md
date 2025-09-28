@@ -14,14 +14,14 @@ Qharbox rejects the traditional "toolbox" approach of switching between separate
 
 * **Left-Click is Always Draw:** Clicking and dragging with the left mouse button always creates a new primitive.
 * **Right-Click is Always Select:** A single right-click always selects an object or text. Right-clicking and dragging creates a selection box.
-* **Flattened Node & Layer Management:** Editing is done directly on the canvas with a simple, flat context menu system, eliminating fiddly panels.
+* **Implicit Node & Layer Management:** Qharbox has light markup in mind, where z-position and perfect node placement is not neccesary. z-position will be a handled in editor by last-selected-svg-element-on-top; the svg box will be rendered top--to-bottom defitions will be ordered back-to-front for those who may want more manual control over this.
 * **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes, supporting a system of inheritance to reduce SVG clutter.
 * **Undo is Erase:** No dedicated erase function, either undo or delete the underlying anchor character to remove SVG markups.
 
-This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
+This design keeps the user in a creative flow state, removing the friction of constantly switching between modes or fiddilng with unimportant minutia.
 
 ---
-## Core Philosophy 2: Text-Based Anchoring & Degradation
+## Core Philosophy 2: Text-Based Anchoring & Graceful Degradation
 
 All graphical markups are attached to the document via a flexible anchor system. An anchor is defined by two parts:
 1.  A **text anchor** (`anchor-line`, `anchor-char`) that specifies a point on the text grid.
