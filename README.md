@@ -8,7 +8,7 @@ Qharbox allows you to draw lines, highlight sections, and attach SVG primitives 
 
 The project is built on two core philosophies: a unique multi-modal UI for interaction and a flexible, text-based anchor system for portability.
 
-## Core Philosophy 1: Multi-Modal UI
+## Core Philosophy 1: Multi-Modal UI/UX
 
 Qharbox rejects the traditional "toolbox" approach of switching between separate tools. Instead, interaction is multi-modal and based on intuitive mouse actions:
 
