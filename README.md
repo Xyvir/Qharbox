@@ -20,7 +20,7 @@ Qharbox rejects the traditional "toolbox" approach of switching between separate
 
 * **Implicit Node & Layer Management:** Qharbox has light markup in mind. Z-position is handled in-editor by "last-selected-on-top," while the SVG block's top-to-bottom order provides manual control.
 
-* **Slash Command Palettes for Insertion:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes. Selecting a shape activates a "ghost" preview that follows the cursor, allowing the user to position it before clicking to insert.
+* **Slash Command Palettes for Insertion:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes. Selecting a shape activates a "ghost" preview that follows the cursor, allowing the user to position it before clicking to insert. Right click allows repeat-insert, left click returns to standard interface.
 
 * **Undo is Erase:** There is no dedicated erase function. To remove markups, the user can either use the standard undo command (`Ctrl/Cmd + Z`) or delete the underlying text anchor.
 
