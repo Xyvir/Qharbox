@@ -40,8 +40,11 @@ A powerful result of this philosophy is **Graceful Degradation**. Because the so
 
 Qharbox uses a pair of fenced code blocks. The user interacts with a rendered, graphical component, while the underlying markup is stored as plain text.
 
-1.  **The Text Block (`qx-text`):** The source text that you wish to annotate.
+1.  **The Content Block** (`qx-*`): The first block uses a qx- prefix (e.g., qx-text, qx-md, qx-asciidoc) to define its content type for syntax highlighting. This block contains the source text to be annotated; later refered to as simply qx-text. 
+(Default; no syntax highlighting)
 2.  **The Markup Block (`qx-markups`):** An SVG block containing shape data and the anchor coordinates.
+
+The renderer will find any block starting with qx- and then look for the next immediate qx-markups block to form a complete Qharbox component.
 
 ---
 ## Example Usage
