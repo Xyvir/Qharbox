@@ -12,10 +12,10 @@ The project is built on two core philosophies: a unique multi-modal UI for inter
 
 Qharbox rejects the traditional "toolbox" approach of switching between separate tools. Instead, interaction is multi-modal and based on intuitive mouse actions:
 
-* **Left-Click is Always Draw:** Clicking and dragging with the left mouse button always creates a new primitive.
+* **Left-Click is Always Draw:** Clicking and dragging with the left mouse button always creates a new pen-stroke (with shape detection and intelligent snapping).
 * **Right-Click is Always Select:** A single right-click always selects an object or text. Right-clicking and dragging creates a selection box.
 * **Implicit Node & Layer Management:** Qharbox has light markup in mind. Z-position is handled in-editor by "last-selected-on-top," while the SVG block's top-to-bottom order provides manual control.
-* **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes.
+* **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly create, insert, or re-instance complex shapes.
 * **Undo is Erase:** No dedicated erase function; either undo or delete the underlying anchor to remove markups.
 
 This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
