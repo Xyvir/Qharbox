@@ -101,22 +101,24 @@ Qharbox uses a pair of fenced code blocks. The user interacts with a rendered, g
 ---
 ## Implementation Strategy
 
-### Undo History: A Unified Snapshot System
+### Undo History: A Unified, Tagged Snapshot System
 
-To ensure a robust and simple undo/redo system, Qharbox uses a "Serialized State as History" approach. Instead of managing a complex tree of user actions, the editor's history is a simple stack of snapshots, with each snapshot capturing the complete state of **both the `qx-text` and `qx-markups` blocks**.
+To ensure a robust, efficient, and simple undo/redo system, Qharbox uses a "Tagged Snapshot" approach. The editor's history is a single, linear stack of "change objects," where each object records a change to a single block at a time.
 
-* **How it Works:** After every significant user action—whether it's typing in the text block or drawing a shape on the canvas—the editor captures the full text content of both blocks and saves it as a single snapshot. This snapshot is then pushed onto an undo stack.
+* **How it Works:** When a user performs an action—either typing in the `qx-text` block or manipulating a shape on the canvas—the editor creates a small object that "tags" which block was changed and captures its new content. This object (e.g., `{ target: 'qx-text', content: '...' }` or `{ target: 'qx-markups', content: '...' }`) is then pushed onto the undo stack.
 
-* **Performing an Undo:** An "undo" action simply pops the last snapshot off the stack, re-parses both blocks, and rebuilds the entire component's state (both text and visuals).
+* **Performing an Undo:** An "undo" action simply pops the last object off the stack, checks its `target` property, and uses the `content` to revert **only the specified block** to its previous state.
 
 * **Key Benefits:**
-    * **Simplicity:** Eliminates the need to write separate undo logic for text editing and graphical editing. The only function needed is "load state from snapshot."
-    * **Robustness:** It is virtually impossible for the editor to get into a broken or inconsistent state, as every undo action is a full reload of a previously valid snapshot.
-    * **Unified History:** This approach **flattens the undo state of both text edits and drawing manipulations into a single, linear history**. A user can type some text, draw a line, type more text, and then undo each of those actions sequentially with `Ctrl+Z`, creating a seamless and predictable experience.
+    * **Simplicity:** Eliminates the need for complex, action-specific undo logic. The only function needed is "load content into target block."
+    * **Robustness:** It is virtually impossible for the editor to get into a broken state, as every undo action is a full reload of a single block's previously valid state.
+    * **Unified History:** This approach flattens the undo state of both text edits and drawing manipulations into a single, linear history. A user can type, draw, type again, and then undo each of those actions sequentially with `Ctrl+Z`.
+    * **Efficiency:** By only storing the content of the block that was actually edited, this method is more memory-efficient than snapshotting the entire component for every change.
 
 ### Project Foundation and Architecture
 
-The Qharbox editor will be built using a modern UI framework (**Svelte** is the primary candidate) wrapped around a powerful, extensible text editor engine (**CodeMirror 6**). This provides a modular, state-driven "sandbox" for the entire component.
+The Qharbox editor will be built using a modern UI framework (**Svelte** is the primary candidate) wrapped around a powerful, extensible text editor engine (**CodeMirror 6**). SVG rendering layer will be handled by SVG.js.
+This provides a modular, state-driven "sandbox" for the entire component.
 
 ### Rendering and UI Implementation
 
