@@ -14,11 +14,11 @@ Qharbox rejects the traditional "toolbox" approach of switching between separate
 
 * **Left-Click is Always Draw:** Clicking and dragging with the left mouse button always creates a new primitive.
 * **Right-Click is Always Select:** A single right-click always selects an object or text. Right-clicking and dragging creates a selection box.
-* **Implicit Node & Layer Management:** Qharbox has light markup in mind, where z-position and perfect node placement is not neccesary. z-position will be a handled in editor by last-selected-svg-element-on-top; the svg box will be rendered top--to-bottom defitions will be ordered back-to-front for those who may want more manual control over this.
-* **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes, supporting a system of inheritance to reduce SVG clutter.
-* **Undo is Erase:** No dedicated erase function, either undo or delete the underlying anchor character to remove SVG markups.
+* **Implicit Node & Layer Management:** Qharbox has light markup in mind. Z-position is handled in-editor by "last-selected-on-top," while the SVG block's top-to-bottom order provides manual control.
+* **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes.
+* **Undo is Erase:** No dedicated erase function; either undo or delete the underlying anchor to remove markups.
 
-This design keeps the user in a creative flow state, removing the friction of constantly switching between modes or fiddilng with unimportant minutia.
+This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
 
 ---
 ## Core Philosophy 2: Text-Based Anchoring & Graceful Degradation
@@ -27,12 +27,12 @@ All graphical markups are attached to the document via a flexible anchor system.
 1.  A **text anchor** (`anchor-line`, `anchor-char`) that specifies a point on the text grid.
 2.  A **shape anchor** (`anchor-x`, `anchor-y`) that specifies which point on the markup itself connects to the text anchor.
 
-A powerful result of this philosophy is **Graceful Degradation**. Because the source data is just two separate text blocks, your Qharbox diagrams remain perfectly useful in standard Markdown viewers. The markups simply "collapse" into a separate code block, leaving the source text completely undisturbed.
+A powerful result of this philosophy is **Graceful Degradation**. Because the source data is just two separate text blocks, your Qharbox diagrams remain perfectly useful in standard Markdown viewers.
 
 ---
 ## How It Works: The Two-Block System
 
-Qharbox uses a pair of fenced code blocks. All text to be displayed must exist in the first block; the second block contains only non-text SVG primitives.
+Qharbox uses a pair of fenced code blocks. The user interacts with a rendered, graphical component, while the underlying markup is stored as plain text.
 
 1.  **The Text Block (`qx-text`):** The source text that you wish to annotate.
 2.  **The Markup Block (`qx-markups`):** An SVG block containing shape data and the anchor coordinates.
@@ -57,17 +57,14 @@ function initialize(value) {
       <path d="M 30 0 L 25 -5 L 25 5 Z" fill="currentColor"/>
     </g>
   </defs>
-
   <g anchor-line="4" anchor-char="2"
      anchor-x="60" anchor-y="10">
     <rect x="0" y="0" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
   </g>
-
   <g anchor-line="2" anchor-char="3"
      anchor-x="0" anchor-y="0">
     <use href="#reusable-arrow" fill="dodgerblue" transform="rotate(-45)" />
   </g>
-
   <g anchor-line="4" anchor-char="10"
      anchor-x="0" anchor-y="0">
     <use href="#reusable-arrow" fill="crimson" />
@@ -81,7 +78,7 @@ function initialize(value) {
 ### `qx-text` Block
 
 * **Language Identifier:** `qx-text`.
-* **Content:** Any plain text, prose, or code. This is the **only** block where text intended for display should be placed.
+* **Content:** Any plain text, prose, or code.
 
 ### `qx-markups` Block
 
@@ -93,45 +90,48 @@ function initialize(value) {
     * `anchor-x` (Optional, Default: `0`): The x-coordinate of the anchor point **within the shape's local coordinate system**.
     * `anchor-y` (Optional, Default: `0`): The y-coordinate of the anchor point **within the shape's local coordinate system**.
 * **Instancing and Inheritance:**
-    * Complex or reusable shapes should be defined within a `<defs>` block at the top of the SVG. Each defined shape must have a unique `id`.
-    * To instance a defined shape, use the `<use>` element, referencing the `id` with `href="#shape-id"`. The `<use>` element can then be transformed (moved, scaled, rotated) independently.
+    * Reusable shapes should be defined within a `<defs>` block. Each defined shape must have a unique `id`.
+    * To instance a shape, use the `<use>` element, referencing the `id` with `href="#shape-id"`.
 
 ---
 ## Implementation Strategy
 
 ### Project Foundation and Architecture
 
-The most effective way to build the Qharbox editor is to use a modern UI framework, with **Svelte** being the primary candidate due to its strong fit with the Logseq plugin ecosystem. This approach provides a modular, state-driven "sandbox" for the entire component.
-
-The project will be built by wrapping a powerful, extensible text editor engine. **CodeMirror 6** was chosen as the ideal foundation because it is not a monolithic editor but a modular toolkit. This allows for deep customization.
+The Qharbox editor will be built using a modern UI framework (**Svelte** is the primary candidate) wrapped around a powerful, extensible text editor engine (**CodeMirror 6**). This provides a modular, state-driven "sandbox" for the entire component.
 
 ### Rendering and UI Implementation
 
-The architecture will consist of several key components working together within a Svelte wrapper:
+1.  **Core Text Engine:** CodeMirror 6 will render the text from the `qx-text` block.
+2.  **SVG Overlay:** A custom CodeMirror 6 "layer" extension will render the SVG elements from the `qx-markups` block.
+3.  **Coordinate System:** The renderer operates on a fixed-grid system based on a **monospace font**. On initialization, it measures a single character's width and height, and all subsequent anchor calculations are simple multiplications.
+4.  **Bespoke UI Input:** A custom CodeMirror 6 **input handler extension** will intercept raw DOM events to implement the multi-modal UI, preventing the editor's default behaviors.
 
-1.  **Core Text Engine:** CodeMirror 6 will handle the rendering of the text from the `qx-text` block.
-2.  **SVG Overlay:** A custom CodeMirror 6 "layer" extension will be created to render the SVG elements from the `qx-markups` block. This layer will sit on top of the text canvas.
-3.  **Coordinate System:** The renderer will operate under the assumption of a **monospace font**. This provides a major performance and simplicity advantage. On initialization, the renderer will measure a single character's width and a single line's height. All subsequent anchor calculations (`line`, `char`) will be simple multiplications based on these two stored values, avoiding complex DOM queries.
-4.  **Bespoke UI Input:** The unique multi-modal UI (left-click-draw, right-click-select) will be implemented as a custom CodeMirror 6 **input handler extension**. This extension will intercept raw DOM events (`mousedown`, `contextmenu`, etc.) *before* CodeMirror's default handlers. By returning `true` after processing an event, the extension will prevent the editor's default behaviors (like moving the cursor), ensuring the bespoke UX works without disruption.
+### Editor Experience and Font Enforcement
+
+To ensure a seamless experience, the Qharbox renderer should be designed with two key behaviors:
+
+1.  **Font Enforcement:** The renderer will apply its own CSS to the `qx-text` block to enforce a monospace font. On initialization, it can also check if external user styles are overriding this with a variable-width font. If a conflict is detected, the renderer should display a clear, non-intrusive error message (e.g., "Qharbox rendering disabled: monospace font required") to the user.
+2.  **Collapsing Markup Block:** To maintain a clean interface, the `qx-markups` block should be **collapsed by default**. The user interacts with the visual overlay. The underlying markup is hidden unless a user explicitly clicks an icon (e.g., `</>`) to expand it for manual editing. The block should auto-collapse once the user clicks away from it.
 
 ---
 ## Rendering Logic (For Integrators)
 
-1.  Identify a `qx-text` block and render its content.
+1.  Identify a `qx-text` block and apply monospace font styling.
 2.  Find the next sibling `qx-markups` block.
 3.  For each group `<g>` that has anchor attributes:
-    a. Calculate the absolute pixel position of the **text anchor** (`textAnchorX`, `textAnchorY`) from `anchor-line` and `anchor-char`.
-    b. Read the **shape anchor** offset (`shapeAnchorX`, `shapeAnchorY`) from `anchor-x` and `anchor-y`.
-    c. Calculate the final transform: `translateX = textAnchorX - shapeAnchorX` and `translateY = textAnchorY - shapeAnchorY`.
-    d. Apply this as an SVG transform to the group: `<g transform="translate(translateX, translateY)">...`.
+    a. Calculate the absolute pixel position of the **text anchor** from `anchor-line` and `anchor-char`.
+    b. Read the **shape anchor** offset from `anchor-x` and `anchor-y`.
+    c. Calculate the final transform: `translateX = textAnchorX - shapeAnchorX`, `translateY = textAnchorY - shapeAnchorY`.
+    d. Apply this as an SVG transform to the group.
 4.  Layer the fully transformed SVG on top of the rendered text.
 
 ---
 ## Roadmap
 
-* **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI for editing Qharbox blocks.
-* **Phase 2: Editor Development:** Create a standalone web-based editor that provides the core Qharbox editing experience and exports the resulting two-block Markdown code.
-* **Phase 3: Image & PDF Annotation:** Implement functionality to allow an image as an alternative canvas to a text block, or import SVG as one-qharbox-perpage.
+* **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI.
+* **Phase 2: Editor Development:** Create a standalone web-based editor that provides the core Qharbox editing experience and exports the resulting Markdown code.
+* **Phase 3: Image & PDF Annotation:** Implement functionality to allow an image or PDF page as an alternative canvas.
 
 ## License
 
