@@ -16,6 +16,7 @@ Qharbox rejects the traditional "toolbox" approach of switching between separate
 * **Right-Click is Always Select:** A single right-click always selects an object or text. Right-clicking and dragging creates a selection box.
 * **Flattened Node & Layer Management:** Editing is done directly on the canvas with a simple, flat context menu system, eliminating fiddly panels.
 * **Slash Command Palettes:** Pressing `/` opens a temporary command palette to quickly insert or re-instance complex shapes, supporting a system of inheritance to reduce SVG clutter.
+* **Undo is Erase:** No dedicated erase function, either undo or delete the underlying anchor character to remove SVG markups.
 
 This design keeps the user in a creative flow state, removing the friction of constantly switching between modes.
 
