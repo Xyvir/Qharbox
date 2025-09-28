@@ -131,7 +131,7 @@ The architecture will consist of several key components working together within 
 
 * **Phase 1: Reference Implementation:** Develop a full-featured Logseq plugin that can parse, render, and enable the multi-modal UI for editing Qharbox blocks.
 * **Phase 2: Editor Development:** Create a standalone web-based editor that provides the core Qharbox editing experience and exports the resulting two-block Markdown code.
-* **Phase 3: Image Annotation:** Implement functionality to allow an image as an alternative canvas to a text block.
+* **Phase 3: Image & PDF Annotation:** Implement functionality to allow an image as an alternative canvas to a text block, or import SVG as one-qharbox-perpage.
 
 ## License
 
