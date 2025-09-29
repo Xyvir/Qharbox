@@ -1,0 +1,12 @@
+.cm-editor {
+  font-family: monospace;
+}
+
+:root {
+  --svg-stroke-default-color: #000;
+  --qharbox-anchor-char-color: orange;
+}
+
+.qharbox-anchor-char {
+  color: var(--qharbox-anchor-char-color);
+}
