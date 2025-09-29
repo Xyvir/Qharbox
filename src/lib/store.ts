@@ -10,6 +10,10 @@ export const qharboxData = writable<QharboxData>({
   qxMarkups: '',
 });
 
+export function updateQxMarkups(newMarkups: string) {
+    qharboxData.update(data => ({ ...data, qxMarkups: newMarkups }));
+}
+
 export function ingestMarkdown(markdown: string) {
   const qxTextBlockRegex = /```qx-text\n([\s\S]*?)```/;
   const qxMarkupsBlockRegex = /```qx-markups\n([\s\S]*?)```/;

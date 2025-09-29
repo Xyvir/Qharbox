@@ -35,35 +35,35 @@ Reusable arrow 2 anchored here:
   </defs>
   
   <!-- Rectangle -->
-  <g anchor-line="2" anchor-char="5">
+  <g id="anchor-rect" anchor-line="2" anchor-char="5">
     <rect x="0" y="0" width="120" height="20" fill="rgba(255, 165, 0, 0.3)" stroke="orange" stroke-width="1.5" />
   </g>
   
   <!-- Circle -->
-  <g anchor-line="4" anchor-char="5">
+  <g id="anchor-circle" anchor-line="4" anchor-char="5">
       <circle cx="0" cy="0" r="15" fill="rgba(0, 255, 0, 0.3)" stroke="green" stroke-width="1.5" />
   </g>
 
   <!-- Ellipse -->
-  <g anchor-line="6" anchor-char="5">
+  <g id="anchor-ellipse" anchor-line="6" anchor-char="5">
       <ellipse cx="0" cy="0" rx="20" ry="10" fill="rgba(0, 0, 255, 0.3)" stroke="blue" stroke-width="1.5" />
   </g>
 
   <!-- Polygon -->
-  <g anchor-line="8" anchor-char="5">
+  <g id="anchor-polygon" anchor-line="8" anchor-char="5">
       <polygon points="0,0 20,10 10,20" fill="rgba(255, 0, 255, 0.3)" stroke="magenta" stroke-width="1.5" />
   </g>
 
   <!-- Polyline -->
-  <g anchor-line="10" anchor-char="5">
+  <g id="anchor-polyline" anchor-line="10" anchor-char="5">
       <polyline points="0,0 10,10 20,0 30,10" fill="none" stroke="cyan" stroke-width="1.5" />
   </g>
 
   <!-- Reusable arrows (use, defs, path, line) -->
-  <g anchor-line="12" anchor-char="5">
+  <g id="anchor-arrow-1" anchor-line="12" anchor-char="5">
     <use href="#reusable-arrow" fill="dodgerblue" transform="rotate(-45)" />
   </g>
-  <g anchor-line="14" anchor-char="5">
+  <g id="anchor-arrow-2" anchor-line="14" anchor-char="5">
     <use href="#reusable-arrow" fill="crimson" />
   </g>
 
